@@ -5,6 +5,8 @@ try:
     from tkinter import filedialog
     import pandas as pd
     import matplotlib.pyplot as plt
+    import matplotlib.widgets as widgets
+    import numpy as np
 except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first.')
     exit()
@@ -66,19 +68,52 @@ resprateLimit = [nan if resprateLower<x<resprateUpper else x for x in resprate]
 heartrateLimit = [nan if heartrateLower<x<heartrateUpper else x for x in heartrate]
 satrateLimit = [nan if satrateLower<x else x for x in satrate]
 
+# SNAP CURSOR
+class SnaptoCursor(object):
+    def __init__(self, ax, x, y):
+        self.ax = ax
+        self.ly = ax.axvline(color='k', alpha=0.2)  # the vert line
+        self.marker, = ax.plot([0],[0], marker="o", color="crimson", zorder=3) 
+        self.x = x
+        self.y = y
+        self.txt = ax.text(0.7, 0.9, '')
+
+    def mouse_move(self, event):
+        if not event.inaxes: return
+        x, y = event.xdata, event.ydata
+        indx = np.searchsorted(self.x, [x])[0]
+        try:
+        	x = self.x[indx]
+        	y = self.y[indx]
+        except:
+        	return None
+        self.ly.set_xdata(x)
+        self.marker.set_data([x],[y])
+        self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+        self.txt.set_position((x,y))
+        self.ax.figure.canvas.draw_idle()
+
 # PLOT
 print('[INFO] PLOT DIAGRAM')
-plt.plot(time, resprate, color='limegreen', label='Resprate')
-plt.plot(time, resprateLimit, color='green', label='Resprate Limit')
-plt.plot(time, heartrate, color='darkorange', label='Heartrate')
-plt.plot(time, heartrateLimit, color='red', label='Heartrate Limit')
-plt.plot(time, satrate, color='dodgerblue', label='Satrate')
-plt.plot(time, satrateLimit, color='blue', label='Satrate Limit')
-plt.xlabel('time')
-plt.ylabel('index')
+fig, ax = plt.subplots()
+cursor = SnaptoCursor(ax, time, resprate)
+cursor1 = SnaptoCursor(ax, time, heartrate)
+cursor2 = SnaptoCursor(ax, time, satrate)
+cid =  plt.connect('motion_notify_event', cursor.mouse_move)
+cid1 =  plt.connect('motion_notify_event', cursor1.mouse_move)
+cid2 =  plt.connect('motion_notify_event', cursor2.mouse_move)
+
+ax.plot(time, resprate, color='limegreen', label='Resprate')
+ax.plot(time, heartrate, color='darkorange', label='Heartrate')
+ax.plot(time, satrate, color='dodgerblue', label='Satrate')
+ax.plot (time, resprateLimit,  color='green')
+ax.plot (time, heartrateLimit,  color='red')
+ax.plot (time, satrateLimit,  color='blue')
+
 if csvFlag == 1:
     plt.legend(loc='best', fancybox=True, shadow=True, title='DATA CORRUPTED, CHECK CSV')
 else:
     plt.legend(loc='best', fancybox=True, shadow=True)
-plt.grid(True)
-plt.show() 
+
+plt.xlabel('time')
+plt.show()
