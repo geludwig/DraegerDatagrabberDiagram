@@ -1,0 +1,442 @@
+### MODULES ###
+try:
+    from cmath import nan
+    import tkinter as tk
+    from tkinter import filedialog
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import threading
+    import time
+    from datetime import datetime
+except ModuleNotFoundError as err:
+    print('[ERROR] ', err, '. Install required module with "pip" command first.')
+    exit()
+
+
+### USER DEFINED VARIABLES / LIMITS ###
+hertz = 26
+resprateUpper = 100
+resprateLower = 50
+heartrateUpper = 160
+heartrateLower = 120
+satrateLower = 95
+
+### IMPORT DIALOG ###
+def import_dialog():
+    global filemonitor, filesensor
+
+    # MONITOR
+    print('[INFO] IMPORT DIALOG')
+    root = tk.Tk()
+    root.withdraw()
+    filemonitor = filedialog.askopenfilename(filetypes=[('.csvfiles', '.csv')], title='Select monitor data')
+    if not filemonitor:
+        print('[ERROR] No file selected, exiting.')
+        exit()
+
+    time.sleep(1) # tiomeout between file dialoges to minimize false mouse click
+
+    # SENSOR
+    root = tk.Tk()
+    root.withdraw()
+    filesensor = filedialog.askopenfilename(filetypes=[('.textfiles', '.txt')], title='Select sensor data')
+    if not filesensor:
+        print('[ERROR] (SENSOR) No file selected, exiting.')
+        exit()
+
+    return filemonitor, filesensor
+
+
+### MONITOR DATA ###
+def calc_monitor():
+    global csvflag, clockmonitor, timemonitor, resprate, heartrate, satrate, respratelim, heartratelim, satratelim
+
+    # READ CSV
+    df = pd.read_csv(filemonitor, sep=',', usecols=['Time [ms]', 'Rel.Time [s]', 'Infinity|RESP.RR [BREATHS_PER_MIN]', 'Infinity|ECG.HR [BEATS_PER_MIN]', 'Infinity|SPO2.SATURATION [PERCENT]'])
+    clockmonitor = df['Time [ms]'].tolist()
+    timemonitor = df['Rel.Time [s]'].tolist()
+    resprate = df['Infinity|RESP.RR [BREATHS_PER_MIN]'].tolist()
+    heartrate = df['Infinity|ECG.HR [BEATS_PER_MIN]'].tolist()
+    satrate = df['Infinity|SPO2.SATURATION [PERCENT]'].tolist()
+    df = 0 # clean dataframe
+
+    # CALC UNIX TIME
+    clockmonitor = list(dict.fromkeys(clockmonitor))
+    clockmonitor  = [(x/1000) for x in clockmonitor]
+    clockmonitor = [(datetime.fromtimestamp(x).strftime('%H:%M:%S.%f')) for x in clockmonitor]
+
+    # CALC REL TIME
+    timemonitor = list(dict.fromkeys(timemonitor))
+    timemonitor = [i * 1000 for i in timemonitor] # multiply witch ms to match sensor data 
+
+    # REMOVE DOUBLES / NaN
+    resprate = [item for item in resprate if not(pd.isnull(item)) == True]
+    heartrate = [item for item in heartrate if not(pd.isnull(item)) == True]
+    satrate = [item for item in satrate if not(pd.isnull(item)) == True]
+
+    # FIX DATA CORRUPTION (END OF FILE)
+    timeLen = len(timemonitor)
+    resprateLen = len(resprate)
+    heartrateLen = len(heartrate)
+    satrateLen = len(satrate)
+    if timeLen > (resprateLen or heartrateLen or satrateLen):
+        print('[WARNING] FIXING CORRUPTED MONITOR DATA')
+        csvflag = 1
+        minLen = [resprateLen, heartrateLen, satrateLen] # create list with lenghts
+        minLen = min(minLen) # find smalles list
+        lenFixList = [timemonitor, resprate, heartrate, satrate] # list of lists which will be shortened
+        for x in lenFixList:
+           xLen = len(x)
+           if xLen > minLen: # if check because "del x[-n:]" needs n > 0, otherwise error
+                n = xLen - minLen
+                del x[-n:]
+    else:
+        csvflag = 0
+
+    # CALC LIMITS
+    respratelim = [nan if resprateLower<x<resprateUpper else x for x in resprate]
+    heartratelim = [nan if heartrateLower<x<heartrateUpper else x for x in heartrate]
+    satratelim = [nan if satrateLower<x else x for x in satrate]
+
+    # RETURN
+    return csvflag, clockmonitor, timemonitor, resprate, heartrate, satrate, respratelim, heartratelim, satratelim
+
+
+### SENSOR DATA ###
+def calc_sensor():
+
+    # IMPORT
+    print('[INFO] LOADING, PLEASE WAIT ...')
+    sensordata = np.genfromtxt(filesensor, dtype=str, delimiter=' ')
+    hourshex = sensordata[:,0]
+    minuteshex = sensordata[:,1]
+    secondshex = sensordata[:,2]
+    millsechex = sensordata[:,3]
+    accx1hex = sensordata[:,4]
+    accx2hex = sensordata[:,5]
+    accy1hex = sensordata[:,6]
+    accy2hex = sensordata[:,7]
+    accz1hex = sensordata[:,8]
+    accz2hex = sensordata[:,9]
+    gyrox1hex = sensordata[:,10]
+    gyrox2hex = sensordata[:,11]
+    gyroy1hex = sensordata[:,12]
+    gyroy2hex = sensordata[:,13]
+    gyroz1hex = sensordata[:,14]
+    gyroz2hex = sensordata[:,15]
+    sensordata = 0
+
+    # CALC UNIX TIME
+    def calc_clock_sensor():
+        global clocksensor
+
+        def convert_hex(arrayhex):
+            global listclock
+            listclock = []
+            for x in arrayhex:
+                x = int(str(x), 16)
+                listclock.append(x)
+            return listclock
+
+        hours = convert_hex(hourshex)
+        hours = [('%02d' % (x,)) for x in hours]
+        minutes = convert_hex(minuteshex)
+        minutes = [('%02d' % (x,)) for x in minutes]
+        seconds = convert_hex(secondshex)
+        seconds = [('%02d' % (x,)) for x in seconds]
+        millsec = convert_hex(millsechex)
+        millsec = [int(x*(1000/hertz)) for x in millsec]
+
+        clocksensor = ['{}:{}:{}.{}'.format(hours, minutes, seconds, millsec) for hours, minutes, seconds, millsec in zip(hours, minutes, seconds, millsec)] # DOES NOT WORK, LEADING ZERO MISSING
+        return clocksensor
+
+    # CALC REL TIME
+    def calc_rel_time():
+        global timesensor
+        length = len(millsechex)
+        timesensorfloat = []
+        calcsec = 0
+        calcmill = 0
+        intervall = 1000/hertz
+        i = 0
+
+        while i < length: # calc ms and add one second after overflow -> [..., 961, 1000, 1038, ... 1961, 2000, 2038, ...]
+            if calcmill >=999:
+                calcmill = 0
+                calcsec = calcsec + 1000
+            calctime = calcsec + calcmill
+            timesensorfloat.append(calctime)
+            calcmill = calcmill + intervall
+            i = i+1
+            progress = 100 / (length / i)
+            print('[INFO] PROGRESS:', '%.1f' % progress, '%', end='\r') # progress bar
+
+        timesensor = [int(x) for x in timesensorfloat]
+        print(end='\n')
+        return timesensor
+
+    # ACCELERATION
+    # X
+    def calc_acc_x():
+        global accx
+        arrayint = []
+        accxhex = [str(m)+str(n) for m,n in zip(accx1hex,accx2hex)]
+        for x in accxhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        accx = [x / 16384 for x in arrayint]
+        return accx
+    # Y
+    def calc_acc_y():
+        global accy
+        arrayint = []
+        accyhex = [str(m)+str(n) for m,n in zip(accy1hex,accy2hex)]
+        for x in accyhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        accy = [x / 16384 for x in arrayint]
+        return accy
+    # Z
+    def calc_acc_z():
+        global accz
+        arrayint = []
+        acczhex = [str(m)+str(n) for m,n in zip(accz1hex,accz2hex)]
+        for x in acczhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        accz = [x / 16384 for x in arrayint]
+        return accz
+
+    # GYRO
+    #X
+    def calc_gyro_x():
+        global gyrox
+        arrayint = []
+        gyroxhex = [str(m)+str(n) for m,n in zip(gyrox1hex,gyrox2hex)]
+        for x in gyroxhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        gyrox = [x / 16384 for x in arrayint]
+        return gyrox
+    #Y
+    def calc_gyro_y():
+        global gyroy
+        arrayint = []
+        gyroyhex = [str(m)+str(n) for m,n in zip(gyroy1hex,gyroy2hex)]
+        for x in gyroyhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        gyroy = [x / 16384 for x in arrayint]
+        return gyroy
+    #Z
+    def calc_gyro_z():
+        global gyroz
+        arrayint = []
+        gyrozhex = [str(m)+str(n) for m,n in zip(gyroz1hex,gyroz2hex)]
+        for x in gyrozhex:
+            x = int(str(x), 16)
+            if x > 32767:
+                x -= 65536
+            arrayint.append(x)
+        gyroz = [x / 16384 for x in arrayint]
+        return gyroz
+
+    # MULTITHREADING
+    threadcount = threading.active_count()
+    thread1 = threading.Thread(target=calc_rel_time)
+    thread2 = threading.Thread(target=calc_clock_sensor)
+    thread3 = threading.Thread(target=calc_gyro_x)
+    thread4 = threading.Thread(target=calc_gyro_y)
+    thread5 = threading.Thread(target=calc_gyro_z)
+    thread6 = threading.Thread(target=calc_acc_x)
+    thread7 = threading.Thread(target=calc_acc_y)
+    thread8 = threading.Thread(target=calc_acc_z)
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    thread4.start()
+    thread5.start()
+    thread6.start()
+    thread7.start()
+    thread8.start()
+
+    while (threading.active_count() > threadcount):
+        time.sleep(1)
+
+    # RETURN
+    return timesensor, clocksensor, accx, accy, accz, gyrox, gyroy, gyroz
+
+
+### ALIGN LISTS CLOCK ###
+def align_clock():
+    maxtime = 60000
+    i = 0
+
+    print('monitor', clockmonitor[0])
+    print('sensor', clocksensor[0])
+
+    cm = clockmonitor[0]
+    cs = clocksensor[0]
+
+    if cm < cs:
+        print('monitor zuerst')
+
+    if cs < cm:
+        print('sensor zuerst')
+
+    while i < 60:
+        print('___________________________________')
+        if clockmonitor[i] < clocksensor[i]:
+            print(clockmonitor[i], ' < ', clocksensor[i])
+        if clockmonitor[i] > clocksensor[i]:
+            print(clockmonitor[i], ' > ', clocksensor[i])
+        i = i+1
+    return None
+
+
+### PLOT ###
+def calc_plot():
+    # FUNC SNAP CURSOR
+    class SnaptoCursor(object):
+        def __init__(self, ax, x, y):
+            self.ax = ax
+            self.ly = ax.axvline(color='k', alpha=0.2)  # the vert line
+            self.marker, = ax.plot([0],[0], marker="o", color="crimson", zorder=3) 
+            self.x = x
+            self.y = y
+            self.txt = ax.text(0.7, 0.9, '')
+
+        def mouse_move(self, event):
+            if not event.inaxes: return
+            x, y = event.xdata, event.ydata
+            indx = np.searchsorted(self.x, [x])[0]
+            try:
+                x = self.x[indx]
+                y = self.y[indx]
+            except:
+                x = self.x[0]
+                y = self.y[0]
+            self.ly.set_xdata(x)
+            self.marker.set_data([x],[y])
+            self.txt.set_text('x=%1.2f, y=%1.2f' % (x, y))
+            self.txt.set_position((x,y))
+            self.ax.figure.canvas.draw_idle()
+
+    # FUNC SELECT GRAPH
+    def on_pick(event):
+        legend = event.artist
+        isVisible = legend.get_visible()
+        graphs[legend].set_visible(not isVisible)
+        legend.set_visible(not isVisible)
+        if (legend is rrplt_legend1):
+            graphs[rrlimplt_legend1].set_visible(not isVisible)
+            rrlimplt_legend1.set_visible(not isVisible)
+        if (legend is hrplt_legend1):
+            graphs[hrlimplt_legend1].set_visible(not isVisible)
+            hrlimplt_legend1.set_visible(not isVisible)
+        if (legend is srplt_legend1):
+            graphs[srlimplt_legend1].set_visible(not isVisible)
+            srlimplt_legend1.set_visible(not isVisible)
+        fig.canvas.draw()
+
+    # PLOT PROPERTIES
+    fig, (ax1, ax2)  = plt.subplots(2, sharex=True)
+    ax1.ticklabel_format(useOffset=False, style='plain')
+    plt.xlabel('Time in ms')
+    plt.ylabel('Scale')
+    ax1.grid(True)
+    ax2.grid(True)
+
+    # SNAP CURSOR
+    cursor = SnaptoCursor(ax1, timemonitor, resprate)
+    cursor1 = SnaptoCursor(ax1, timemonitor, heartrate)
+    cursor2 = SnaptoCursor(ax1, timemonitor, satrate)
+    plt.connect('motion_notify_event', cursor.mouse_move)  
+    plt.connect('motion_notify_event', cursor1.mouse_move)
+    plt.connect('motion_notify_event', cursor2.mouse_move)
+
+    # GRAPH PROPERTIES
+    rrplt, = ax1.plot(timemonitor, resprate, color='limegreen', label='resprate')
+    rrlimplt, = ax1.plot(timemonitor, respratelim, color='green', label='resprate limit')
+    hrplt, = ax1.plot(timemonitor, heartrate, color='darkorange', label='heartrate')
+    hrlimplt, = ax1.plot(timemonitor, heartratelim, color='red', label='heartrate limit')
+    srplt, = ax1.plot(timemonitor, satrate, color='dodgerblue', label='satrate')
+    srlimplt, = ax1.plot(timemonitor, satratelim, color='blue', label='satrate limit')
+
+    axplt, = ax2.plot(timesensor, accx, color='red', label='acc x')
+    ayplt, = ax2.plot(timesensor, accy, color='green', label='acc y')
+    azplt, = ax2.plot(timesensor, accz, color='blue', label='acc z')
+
+    gxplt, = ax2.plot(timesensor, gyrox, color='red', label='gyro x')
+    gyplt, = ax2.plot(timesensor, gyroy, color='green', label='gyro y')
+    gzplt, = ax2.plot(timesensor, gyroz, color='blue', label='gyro z')
+
+    # INITILIZE LEGEND
+    legend1 = ax1.legend(loc='upper right')
+    rrplt_legend1, rrlimplt_legend1, hrplt_legend1, hrlimplt_legend1, srplt_legend1, srlimplt_legend1, = legend1.get_lines()
+
+    legend2 = ax2.legend(loc='upper right')
+    axplt_legend2, ayplt_legend2, azplt_legend2, gxplt_legend2, gyplt_legend2, gzplt_legend2 = legend2.get_lines()
+
+    # PICKER
+    rrplt_legend1.set_picker(True)
+    rrplt_legend1.set_pickradius(10)
+    hrplt_legend1.set_picker(True)
+    hrplt_legend1.set_pickradius(10)
+    srplt_legend1.set_picker(True)
+    srplt_legend1.set_pickradius(10)
+
+    axplt_legend2.set_picker(True)
+    axplt_legend2.set_pickradius(10)
+    ayplt_legend2.set_picker(True)
+    ayplt_legend2.set_pickradius(10)
+    azplt_legend2.set_picker(True)
+    azplt_legend2.set_pickradius(10)
+
+    gxplt_legend2.set_picker(True)
+    gxplt_legend2.set_pickradius(10)
+    gyplt_legend2.set_picker(True)
+    gyplt_legend2.set_pickradius(10)
+    gzplt_legend2.set_picker(True)
+    gzplt_legend2.set_pickradius(10)
+
+    # INITILIZE GRAPHS
+    graphs = {}
+    graphs[rrplt_legend1] = rrplt
+    graphs[rrlimplt_legend1] = rrlimplt
+    graphs[hrplt_legend1] = hrplt
+    graphs[hrlimplt_legend1] = hrlimplt
+    graphs[srplt_legend1] = srplt
+    graphs[srlimplt_legend1] = srlimplt
+
+    graphs[axplt_legend2] = axplt
+    graphs[ayplt_legend2] = ayplt
+    graphs[azplt_legend2] = azplt
+
+    graphs[gxplt_legend2] = gxplt
+    graphs[gyplt_legend2] = gyplt
+    graphs[gzplt_legend2] = gzplt
+
+    # PLOT
+    print('[INFO] DRAWING PLOT PANE')
+    plt.connect('pick_event', on_pick)
+    plt.show() 
+
+
+### CALL FUNCTIONS ###
+import_dialog()
+calc_monitor()
+calc_sensor()
+#align_clock()
+calc_plot()
