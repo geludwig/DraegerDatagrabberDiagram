@@ -1,3 +1,5 @@
+1
+
 ### MODULES ###
 try:
     from cmath import nan
@@ -26,10 +28,11 @@ satrateLower = 95
 def import_dialog():
     global filemonitor, filesensor
 
-    # MONITOR
-    print('[INFO] IMPORT DIALOG')
     root = tk.Tk()
     root.withdraw()
+
+    # MONITOR
+    print('[INFO] IMPORT DIALOG')
     filemonitor = filedialog.askopenfilename(filetypes=[('.csvfiles', '.csv')], title='Select monitor data')
     if not filemonitor:
         print('[ERROR] No file selected, exiting.')
@@ -38,13 +41,15 @@ def import_dialog():
     time.sleep(1) # tiomeout between file dialoges to minimize false mouse click
 
     # SENSOR
-    root = tk.Tk()
-    root.withdraw()
     filesensor = filedialog.askopenfilename(filetypes=[('.textfiles', '.txt')], title='Select sensor data')
     if not filesensor:
         print('[ERROR] (SENSOR) No file selected, exiting.')
         exit()
+    
+    root.destroy()
 
+    print('[INFO] MONITOR FILE: ', filemonitor)
+    print('[INFO] SENSOR FILE: ', filesensor)
     return filemonitor, filesensor
 
 
@@ -64,7 +69,7 @@ def calc_monitor():
     # CALC UNIX TIME
     clockmonitor = list(dict.fromkeys(clockmonitor))
     clockmonitor  = [(x/1000) for x in clockmonitor]
-    clockmonitor = [(datetime.fromtimestamp(x).strftime('%H:%M:%S.%f')) for x in clockmonitor]
+    clockmonitor = [(datetime.fromtimestamp(x).strftime('%H:%M:%S.%f')[:-3]) for x in clockmonitor]
 
     # CALC REL TIME
     timemonitor = list(dict.fromkeys(timemonitor))
@@ -280,29 +285,62 @@ def calc_sensor():
 
 ### ALIGN LISTS CLOCK ###
 def align_clock():
-    maxtime = 60000
-    i = 0
+    global clockmonitor, clocksensor, imonitor, isensor
+    maxtime = 60
+    imonitor = 0
+    isensor = 0
 
-    print('monitor', clockmonitor[0])
-    print('sensor', clocksensor[0])
+    cmtmp = clockmonitor[0]
+    cstmp = clocksensor[0]
 
-    cm = clockmonitor[0]
-    cs = clocksensor[0]
+    if cmtmp < cstmp: # monitor first, then sensor (monitor smaller)
+        # if monitor was started before sensor
+        # monitor data every 1 second, sensor every <hertz> millisecond
+        # first step to check monitor array which element is still smaller than sensor array, and delete all elements before from monitor array
+        # second step to check sensor array  which element is still smaller than monitor array, and delete all elements before from sensor array
+        # reason for second step is finer resolution from sensor, worst case after first step there can be a delta of 1 sec
+        while (imonitor <= maxtime) and (clockmonitor[imonitor] < clocksensor[0]):
+            imonitor = imonitor+1
+        if imonitor > 0:
+            clockmonitor = clockmonitor[imonitor:] # from front
+        if clocksensor[0] < clockmonitor[0]:
+            while (isensor  <= hertz) and (clocksensor[isensor ] < clockmonitor[0]):
+                isensor  = isensor +1
+            if isensor > 0:
+                clocksensor = clocksensor[isensor:] # from front
 
-    if cm < cs:
-        print('monitor zuerst')
+    if cstmp < cmtmp: # sensor first, then monitor (sensor smaller)
+        while (isensor <= (60*hertz)) and (clocksensor[isensor] < clockmonitor[0]):
+            isensor = isensor+1
+        if isensor > 0:
+            clocksensor = clocksensor[isensor:] # from front
 
-    if cs < cm:
-        print('sensor zuerst')
+    print('[INFO] START TIMES ALIGNED - MONITOR:', clockmonitor[0], ' SENSOR:', clocksensor[0])
+    return imonitor, isensor
 
-    while i < 60:
-        print('___________________________________')
-        if clockmonitor[i] < clocksensor[i]:
-            print(clockmonitor[i], ' < ', clocksensor[i])
-        if clockmonitor[i] > clocksensor[i]:
-            print(clockmonitor[i], ' > ', clocksensor[i])
-        i = i+1
-    return None
+
+### CUT LISTS ###
+def cut_lists():
+    global timemonitor, resprate, heartrate, satrate, respratelim, heartratelim, satratelim
+    global timesensor, accx, accy, accz, gyrox, gyroy, gyroz
+
+    timemonitor = timemonitor[imonitor:]
+    resprate = resprate[imonitor:]
+    heartrate = heartrate[imonitor:]
+    satrate = satrate[imonitor:]
+    respratelim = respratelim[imonitor:]
+    heartratelim = heartratelim[imonitor:]
+    satratelim = satratelim[imonitor:]
+
+    timesensor = timesensor[isensor:]
+    accx = accx[isensor:]
+    accy = accy[isensor:]
+    accz = accz[isensor:]
+    gyrox = gyrox[isensor:]
+    gyroy = gyroy[isensor:]
+    gyroz = gyroz[isensor:]
+
+    return timemonitor, resprate, heartrate, satrate, respratelim, heartratelim, satratelim, timesensor, accx, accy, accz, gyrox, gyroy, gyroz
 
 
 ### PLOT ###
@@ -438,5 +476,6 @@ def calc_plot():
 import_dialog()
 calc_monitor()
 calc_sensor()
-#align_clock()
+align_clock()
+cut_lists()
 calc_plot()
