@@ -5,7 +5,6 @@ try:
     import urllib.request
     import os.path
     import tkinter as tk
-    from tkinter import Text
 except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first.')
     exit()
@@ -38,6 +37,7 @@ else:
 # VERSION MATCH, NOTHING TO DO
         if versionweb == versionscript:
             print('[INFO] All files up to date.')
+            os.system('python3 script.py')
 # NEW VERSION AVAILABLE, UPDATE BOX, DOWNLOAD NW SCRIPT
         elif versionweb > versionscript:
             root= tk.Tk()
@@ -46,26 +46,29 @@ else:
             root.title('UPDATE SCRIPT?')
 
             def updateYes():
+                root.destroy()
                 try:
                     print('[INFO] Downloading updated python script.')
                     urlscript = 'https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/script.py'
                     urllib.request.urlretrieve(urlscript, filename='script.py')
-                    # call fusion.py here
+                    os.system('python3 script.py')
                 except:
                     print('[ERROR] web request error, exiting.')
                     exit()
-                root.destroy()
 
             def updateNo():
-                # call fusion.py here
                 root.destroy()
+                os.system('python3 script.py')
 
             buttonYes = tk.Button (root, text='YES',command=updateYes)
             buttonNo = tk.Button (root, text='NO',command=updateNo)
             buttonYes.pack(pady=10)
             buttonNo.pack()
-            
             root.mainloop()
+
 # VERSION EXCEPTION
         else:
             print('Something went wrong.')
+
+# EXIT
+print('[INFO] EXIT')
