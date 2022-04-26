@@ -12,7 +12,7 @@ try:
     import time
     from datetime import datetime
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
+    print('[ERROR] ', err, '. Install required module with "pip" command first.')
     exit()
 
 
@@ -32,10 +32,10 @@ def import_dialog():
     root.withdraw()
 
     # MONITOR
-    print('[INFO] IMPORT DIALOG')
+    print('[INFO] Import dialog.')
     filemonitor = filedialog.askopenfilename(filetypes=[('.csvfiles', '.csv')], title='Select monitor data')
     if not filemonitor:
-        print('[ERROR] No file selected, exiting.')
+        print('[ERROR] No file selected.')
         exit()
 
     time.sleep(1) # tiomeout between file dialoges to minimize false mouse click
@@ -43,13 +43,13 @@ def import_dialog():
     # SENSOR
     filesensor = filedialog.askopenfilename(filetypes=[('.textfiles', '.txt')], title='Select sensor data')
     if not filesensor:
-        print('[ERROR] (SENSOR) No file selected, exiting.')
+        print('[ERROR] No file selected.')
         exit()
     
     root.destroy()
 
-    print('[INFO] MONITOR FILE: ', filemonitor)
-    print('[INFO] SENSOR FILE: ', filesensor)
+    print('[INFO] Monitor file: ', filemonitor)
+    print('[INFO] Sensor file: ', filesensor)
     return filemonitor, filesensor
 
 
@@ -86,7 +86,7 @@ def calc_monitor():
     heartrateLen = len(heartrate)
     satrateLen = len(satrate)
     if timeLen > (resprateLen or heartrateLen or satrateLen):
-        print('[WARNING] FIXING CORRUPTED MONITOR DATA')
+        print('[WARNING] Fixing corrupted monitor data.')
         csvflag = 1
         minLen = [resprateLen, heartrateLen, satrateLen] # create list with lenghts
         minLen = min(minLen) # find smalles list
@@ -112,7 +112,7 @@ def calc_monitor():
 def calc_sensor():
 
     # IMPORT
-    print('[INFO] LOADING, PLEASE WAIT ...')
+    print('[INFO] Loading, please wait.')
     sensordata = np.genfromtxt(filesensor, dtype=str, delimiter=' ')
     hourshex = sensordata[:,0]
     minuteshex = sensordata[:,1]
@@ -175,7 +175,7 @@ def calc_sensor():
             calcmill = calcmill + intervall
             i = i+1
             progress = 100 / (length / i)
-            print('[INFO] PROGRESS:', '%.1f' % progress, '%', end='\r') # progress bar
+            print('[INFO] Progress:', '%.1f' % progress, '%', end='\r') # progress bar
 
         timesensor = [int(x) for x in timesensorfloat]
         print(end='\n')
@@ -315,7 +315,7 @@ def align_clock():
         if isensor > 0:
             clocksensor = clocksensor[isensor:] # from front
 
-    print('[INFO] START TIMES ALIGNED - MONITOR:', clockmonitor[0], ' SENSOR:', clocksensor[0])
+    print('[INFO] Aligned start times - monitor:', clockmonitor[0], ' sensor:', clocksensor[0])
     return imonitor, isensor
 
 
@@ -467,7 +467,7 @@ def calc_plot():
     graphs[gzplt_legend2] = gzplt
 
     # PLOT
-    print('[INFO] DRAWING PLOT PANE')
+    print('[INFO] Drawing plot.')
     plt.connect('pick_event', on_pick)
     plt.show() 
 
