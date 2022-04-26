@@ -6,7 +6,7 @@ try:
     import os.path
     import tkinter as tk
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first.')
+    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>)')
     exit()
 
 ### GET PAGE ###
@@ -71,4 +71,4 @@ else:
             print('Something went wrong.')
 
 # EXIT
-print('[INFO] EXIT')
+print('[INFO] Exit.')
