@@ -1,17 +1,15 @@
-1
-
 ### MODULES ###
 try:
     import urllib.request
     import os.path
     import tkinter as tk
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>)')
+    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
     exit()
 
 ### GET PAGE ###
 try:
-    urlversion = urllib.request.urlopen('https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/version')
+    urlversion = urllib.request.urlopen('https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/script.py')
     urlversion = urlversion.read()
     versionweb = [int(s) for s in urlversion.split() if s.isdigit()]
     versionweb = versionweb[0]
