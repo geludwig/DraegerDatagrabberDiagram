@@ -1,4 +1,4 @@
-2
+1
 
 ### MODULES ###
 try:
@@ -12,7 +12,7 @@ try:
     import time
     from datetime import datetime
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first.')
+    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
     exit()
 
 
