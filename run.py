@@ -8,16 +8,19 @@ except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
     exit()
 
-if sys.platform == 'darwin':
-    try:
-        urllib.request.urlretrieve(urlscript, filename='script.py')
-    except:
-        print('[ERROR] Your system runs MacOS. Install CA certificates first (certificate_verify_failed).')
-        exit()
-
 
 ### WEBPAGE ###
 urlscript = 'https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/script.py'
+
+
+### MacOS SPECIFIC CA ERROR ###
+try:
+    urllib.request.urlopen(urlscript)
+except:
+    if sys.platform == 'darwin':
+        print('[ERROR] Your system runs MacOS. Install CA certificates first (certificate_verify_failed).')
+        exit()
+
 
 ### GET PAGE ###
 try:
