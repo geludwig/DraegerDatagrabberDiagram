@@ -1,4 +1,4 @@
-1
+2
 
 ### MODULES ###
 try:
@@ -18,11 +18,11 @@ except ModuleNotFoundError as err:
 
 ### USER DEFINED VARIABLES / LIMITS ###
 hertz = 26
-resprateUpper = 100
-resprateLower = 50
-heartrateUpper = 160
-heartrateLower = 120
-satrateLower = 95
+resprateUpper = 80
+resprateLower = 35
+heartrateUpper = 200
+heartrateLower = 80
+satrateLower = 80
 
 ### IMPORT DIALOG ###
 def import_dialog():
@@ -38,7 +38,7 @@ def import_dialog():
         print('[ERROR] No file selected.')
         exit()
 
-    time.sleep(1) # tiomeout between file dialoges to minimize false mouse click
+    time.sleep(0.5) # tiomeout between file dialoges to minimize false mouse click
 
     # SENSOR
     filesensor = filedialog.askopenfilename(filetypes=[('.textfiles', '.txt')], title='Select sensor data')
@@ -377,98 +377,68 @@ def calc_plot():
         isVisible = legend.get_visible()
         graphs[legend].set_visible(not isVisible)
         legend.set_visible(not isVisible)
-        if (legend is rrplt_legend1):
-            graphs[rrlimplt_legend1].set_visible(not isVisible)
-            rrlimplt_legend1.set_visible(not isVisible)
-        if (legend is hrplt_legend1):
-            graphs[hrlimplt_legend1].set_visible(not isVisible)
-            hrlimplt_legend1.set_visible(not isVisible)
-        if (legend is srplt_legend1):
-            graphs[srlimplt_legend1].set_visible(not isVisible)
-            srlimplt_legend1.set_visible(not isVisible)
         fig.canvas.draw()
 
-    # PLOT PROPERTIES
+    # DEFINE PLOT PROPERTIES
     fig, (ax1, ax2)  = plt.subplots(2, sharex=True)
     ax1.ticklabel_format(useOffset=False, style='plain')
-    plt.xlabel('Time in ms')
-    plt.ylabel('Scale')
     ax1.grid(True)
     ax2.grid(True)
+    ax2.set_xlabel('Time in ms')
+    ax1.set_ylabel('Scale1')
+    ax2.set_ylabel('Scale2')
 
-    # SNAP CURSOR
+    # DEFINE GRAPH PROPERTIES
+    ax1.plot(timemonitor, resprate, color='limegreen', label='resprate')
+    ax1.plot(timemonitor, respratelim, color='green')
+    ax1.plot(timemonitor, heartrate, color='darkorange', label='heartrate')
+    ax1.plot(timemonitor, heartratelim, color='red')
+    ax1.plot(timemonitor, satrate, color='dodgerblue', label='satrate')
+    ax1.plot(timemonitor, satratelim, color='blue')
+
+    axplt, = ax2.plot(timesensor, accx, color='red', label='acc x')
+    ayplt, = ax2.plot(timesensor, accy, color='green', label='acc y')
+    azplt, = ax2.plot(timesensor, accz, color='blue', label='acc z')
+    gxplt, = ax2.plot(timesensor, gyrox, color='red', label='gyro x')
+    gyplt, = ax2.plot(timesensor, gyroy, color='green', label='gyro y')
+    gzplt, = ax2.plot(timesensor, gyroz, color='blue', label='gyro z')
+
+    # DEFINE LEGENDS
+    ax1.legend(loc='upper right')
+    legend2 = ax2.legend(loc='upper right')
+    axplt_legend2, ayplt_legend2, azplt_legend2, gxplt_legend2, gyplt_legend2, gzplt_legend2 = legend2.get_lines()
+
+    # DEFINE PICKER
+    arraylegend = [axplt_legend2, ayplt_legend2, azplt_legend2, gxplt_legend2, gyplt_legend2, gzplt_legend2]
+    for x in arraylegend:
+        x.set_picker(True)
+        x.set_pickradius(10)
+
+    # DEFINE GRAPHS
+    graphs = {}
+    graphs[axplt_legend2] = axplt
+    graphs[ayplt_legend2] = ayplt
+    graphs[azplt_legend2] = azplt
+    graphs[gxplt_legend2] = gxplt
+    graphs[gyplt_legend2] = gyplt
+    graphs[gzplt_legend2] = gzplt
+
+    # CONNECT PLOT
     cursor = SnaptoCursor(ax1, timemonitor, resprate)
     cursor1 = SnaptoCursor(ax1, timemonitor, heartrate)
     cursor2 = SnaptoCursor(ax1, timemonitor, satrate)
     plt.connect('motion_notify_event', cursor.mouse_move)  
     plt.connect('motion_notify_event', cursor1.mouse_move)
     plt.connect('motion_notify_event', cursor2.mouse_move)
-
-    # GRAPH PROPERTIES
-    rrplt, = ax1.plot(timemonitor, resprate, color='limegreen', label='resprate')
-    rrlimplt, = ax1.plot(timemonitor, respratelim, color='green', label='resprate limit')
-    hrplt, = ax1.plot(timemonitor, heartrate, color='darkorange', label='heartrate')
-    hrlimplt, = ax1.plot(timemonitor, heartratelim, color='red', label='heartrate limit')
-    srplt, = ax1.plot(timemonitor, satrate, color='dodgerblue', label='satrate')
-    srlimplt, = ax1.plot(timemonitor, satratelim, color='blue', label='satrate limit')
-
-    axplt, = ax2.plot(timesensor, accx, color='red', label='acc x')
-    ayplt, = ax2.plot(timesensor, accy, color='green', label='acc y')
-    azplt, = ax2.plot(timesensor, accz, color='blue', label='acc z')
-
-    gxplt, = ax2.plot(timesensor, gyrox, color='red', label='gyro x')
-    gyplt, = ax2.plot(timesensor, gyroy, color='green', label='gyro y')
-    gzplt, = ax2.plot(timesensor, gyroz, color='blue', label='gyro z')
-
-    # INITILIZE LEGEND
-    legend1 = ax1.legend(loc='upper right')
-    rrplt_legend1, rrlimplt_legend1, hrplt_legend1, hrlimplt_legend1, srplt_legend1, srlimplt_legend1, = legend1.get_lines()
-
-    legend2 = ax2.legend(loc='upper right')
-    axplt_legend2, ayplt_legend2, azplt_legend2, gxplt_legend2, gyplt_legend2, gzplt_legend2 = legend2.get_lines()
-
-    # PICKER
-    rrplt_legend1.set_picker(True)
-    rrplt_legend1.set_pickradius(10)
-    hrplt_legend1.set_picker(True)
-    hrplt_legend1.set_pickradius(10)
-    srplt_legend1.set_picker(True)
-    srplt_legend1.set_pickradius(10)
-
-    axplt_legend2.set_picker(True)
-    axplt_legend2.set_pickradius(10)
-    ayplt_legend2.set_picker(True)
-    ayplt_legend2.set_pickradius(10)
-    azplt_legend2.set_picker(True)
-    azplt_legend2.set_pickradius(10)
-
-    gxplt_legend2.set_picker(True)
-    gxplt_legend2.set_pickradius(10)
-    gyplt_legend2.set_picker(True)
-    gyplt_legend2.set_pickradius(10)
-    gzplt_legend2.set_picker(True)
-    gzplt_legend2.set_pickradius(10)
-
-    # INITILIZE GRAPHS
-    graphs = {}
-    graphs[rrplt_legend1] = rrplt
-    graphs[rrlimplt_legend1] = rrlimplt
-    graphs[hrplt_legend1] = hrplt
-    graphs[hrlimplt_legend1] = hrlimplt
-    graphs[srplt_legend1] = srplt
-    graphs[srlimplt_legend1] = srlimplt
-
-    graphs[axplt_legend2] = axplt
-    graphs[ayplt_legend2] = ayplt
-    graphs[azplt_legend2] = azplt
-
-    graphs[gxplt_legend2] = gxplt
-    graphs[gyplt_legend2] = gyplt
-    graphs[gzplt_legend2] = gzplt
-
-    # PLOT
-    print('[INFO] Drawing plot.')
     plt.connect('pick_event', on_pick)
+
+    # DEFAULT HIDE ALL AX2 GRAPHS
+    for x in arraylegend:
+        graphs[x].set_visible(False)
+        x.set_visible(False)
+
+    # DRAW PLOT
+    print('[INFO] Drawing plot.')
     plt.show() 
 
 
