@@ -1,3 +1,5 @@
+3
+
 ### MODULES ###
 try:
     import urllib.request
@@ -6,24 +8,31 @@ try:
     import tkinter as tk
 except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
+    input('Press any key to continue...')
+    exit()
+
+### DISABLE MACOS ###
+if sys.platform == 'darwin':
+    print(sys.platform)
+    print('[ERROR] System runs macOS. Script disabled due to software limitations.')
+    input('Press any key to continue...')
     exit()
 
 ### WEBPAGE ###
 urlscript = 'https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/script.py'
 
-### CATCH MACOS CA EXCEPTION
-try:
-    urllib.request.urlopen(urlscript)
-except:
-    if sys.platform == 'darwin':
-        print('[ERROR] System runs MacOS. May need to install CA certificates first.')
-
-### root / DOWNLOAD SCRIPT ###
+### GET PYTHON PATH ###
+pathpython = str(sys.executable)
+script = 'script.py'
+shell = pathpython+' '+script
+ 
+### DOWNLOAD SCRIPT ###
 # NO SCRIPT IN DIR
 if (os.path.exists('script.py') is False):
+    print('[INFO] Fetching script.py.')
     try:
         urllib.request.urlretrieve(urlscript, filename='script.py')
-        os.system('python3 script.py')
+        os.system(shell)
     except urllib.error.HTTPError as e:
         print('[ERROR] HTTP error: ', e)
         print('[ERROR] Can not download script.')
@@ -44,12 +53,12 @@ else:
     except urllib.error.HTTPError as e:
         print('[ERROR] HTTP error: ', e)
         print('[WARNING] Can not verify version, fallback to local file.')
-        os.system('python3 script.py')
+        os.system(shell)
         exit()
     except urllib.error.URLError as e:
         print('[ERROR] URL error: ', e)
         print('[WARNING] Can not verify version, fallback to local file.')
-        os.system('python3 script.py')
+        os.system(shell)
         exit()
 
     # GET SCRIPT VERSION
@@ -58,18 +67,17 @@ else:
         if versionweb == versionscript:
             # VERSION MATCH, NOTHING TO DO
             print('[INFO] All files up to date.')
-            os.system('python3 script.py')
+            os.system(shell)
             exit()
 
         # NEW VERSION AVAILABLE, root DIALOG, DOWNLOAD NEW SCRIPT
         elif versionweb > versionscript:
-
             def rootYes():
                 root.destroy()
                 try:
                     print('[INFO] Updating python script.')
                     urllib.request.urlretrieve(urlscript, filename='script.py')
-                    os.system('python3 script.py')
+                    os.system(shell)
                     exit()
                 except urllib.error.HTTPError as e:
                     print('[ERROR] HTTP error: ', e)
@@ -80,7 +88,7 @@ else:
 
             def rootNo():
                 root.destroy()
-                os.system('python3 script.py')
+                os.system(shell)
                 exit()
 
             print('[INFO] New version available.')
@@ -93,7 +101,7 @@ else:
             buttonYes.pack(pady=10)
             buttonNo.pack()
             root.mainloop()
-            
+
         # VERSION EXCEPTION
         else:
             print('Something went wrong.')
