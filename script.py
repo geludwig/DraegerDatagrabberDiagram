@@ -1,4 +1,4 @@
-4
+5
 
 ### MODULES ###
 try:
@@ -8,11 +8,20 @@ try:
     import pandas as pd
     import matplotlib.pyplot as plt
     import numpy as np
+    import sys
     import threading
     import time
     from datetime import datetime
 except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
+    input('Press any key to continue...')
+    exit()
+
+
+### DISABLE MACOS ###
+if sys.platform == 'darwin':
+    print(sys.platform)
+    print('[ERROR] System runs macOS. Script disabled due to software limitations.')
     input('Press any key to continue...')
     exit()
 
@@ -24,6 +33,7 @@ resprateLower = 35
 heartrateUpper = 200
 heartrateLower = 80
 satrateLower = 80
+
 
 ### IMPORT DIALOG ###
 def import_dialog():
@@ -46,10 +56,8 @@ def import_dialog():
     if not filesensor:
         print('[ERROR] No file selected.')
         exit()
-    
-    root.deiconify() # unhide root window
-    #root.update() # whatever ???
-    root.destroy() # not doing anything?
+
+    root.destroy()
 
     print('[INFO] Monitor file: ', filemonitor)
     print('[INFO] Sensor file: ', filesensor)
