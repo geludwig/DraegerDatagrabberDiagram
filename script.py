@@ -1,4 +1,4 @@
-3
+4
 
 ### MODULES ###
 try:
@@ -28,8 +28,8 @@ satrateLower = 80
 def import_dialog():
     global filemonitor, filesensor
 
-    file = tk.Tk()
-    file.withdraw()
+    root = tk.Tk()
+    root.withdraw()
 
     # MONITOR
     print('[INFO] Import dialog.')
@@ -46,8 +46,9 @@ def import_dialog():
         print('[ERROR] No file selected.')
         exit()
     
-    #file.mainloop()
-    file.destroy()
+    root.deiconify() # unhide root window
+    #root.update() # whatever ???
+    root.destroy() # not doing anything?
 
     print('[INFO] Monitor file: ', filemonitor)
     print('[INFO] Sensor file: ', filesensor)
@@ -424,6 +425,11 @@ def calc_plot():
     graphs[gyplt_legend2] = gyplt
     graphs[gzplt_legend2] = gzplt
 
+    # DEFAULT HIDE ALL AX2 GRAPHS
+    for x in arraylegend:
+        graphs[x].set_visible(False)
+        x.set_visible(False)
+
     # CONNECT PLOT
     cursor = SnaptoCursor(ax1, timemonitor, resprate)
     cursor1 = SnaptoCursor(ax1, timemonitor, heartrate)
@@ -432,11 +438,6 @@ def calc_plot():
     plt.connect('motion_notify_event', cursor1.mouse_move)
     plt.connect('motion_notify_event', cursor2.mouse_move)
     plt.connect('pick_event', on_pick)
-
-    # DEFAULT HIDE ALL AX2 GRAPHS
-    for x in arraylegend:
-        graphs[x].set_visible(False)
-        x.set_visible(False)
 
     # DRAW PLOT
     print('[INFO] Drawing plot.')
