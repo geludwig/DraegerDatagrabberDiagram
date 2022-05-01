@@ -1,4 +1,4 @@
-5
+6
 
 ### MODULES ###
 try:
@@ -14,14 +14,6 @@ try:
     from datetime import datetime
 except ModuleNotFoundError as err:
     print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
-    input('Press any key to continue...')
-    exit()
-
-
-### DISABLE MACOS ###
-if sys.platform == 'darwin':
-    print(sys.platform)
-    print('[ERROR] System runs macOS. Script disabled due to software limitations.')
     input('Press any key to continue...')
     exit()
 
@@ -241,7 +233,7 @@ def calc_sensor():
             if x > 32767:
                 x -= 65536
             arrayint.append(x)
-        gyrox = [x / 16384 for x in arrayint]
+        gyrox = [x / 132 for x in arrayint]
         return gyrox
     #Y
     def calc_gyro_y():
@@ -253,7 +245,7 @@ def calc_sensor():
             if x > 32767:
                 x -= 65536
             arrayint.append(x)
-        gyroy = [x / 16384 for x in arrayint]
+        gyroy = [x / 132 for x in arrayint]
         return gyroy
     #Z
     def calc_gyro_z():
@@ -265,7 +257,7 @@ def calc_sensor():
             if x > 32767:
                 x -= 65536
             arrayint.append(x)
-        gyroz = [x / 16384 for x in arrayint]
+        gyroz = [x / 132 for x in arrayint]
         return gyroz
 
     # MULTITHREADING
@@ -397,7 +389,7 @@ def calc_plot():
     ax2.grid(True)
     ax2.set_xlabel('Time in ms')
     ax1.set_ylabel('Scale1')
-    ax2.set_ylabel('Scale2')
+    ax2.set_ylabel('gravitational force OR degrees per sec')
 
     # DEFINE GRAPH PROPERTIES
     ax1.plot(timemonitor, resprate, color='limegreen', label='resprate')
@@ -407,12 +399,12 @@ def calc_plot():
     ax1.plot(timemonitor, satrate, color='dodgerblue', label='satrate')
     ax1.plot(timemonitor, satratelim, color='blue')
 
-    axplt, = ax2.plot(timesensor, accx, color='red', label='acc x')
-    ayplt, = ax2.plot(timesensor, accy, color='green', label='acc y')
-    azplt, = ax2.plot(timesensor, accz, color='blue', label='acc z')
-    gxplt, = ax2.plot(timesensor, gyrox, color='red', label='gyro x')
-    gyplt, = ax2.plot(timesensor, gyroy, color='green', label='gyro y')
-    gzplt, = ax2.plot(timesensor, gyroz, color='blue', label='gyro z')
+    axplt, = ax2.plot(timesensor, accx, color='red', label='acc x', linewidth=0.6)
+    ayplt, = ax2.plot(timesensor, accy, color='green', label='acc y', linewidth=0.6)
+    azplt, = ax2.plot(timesensor, accz, color='blue', label='acc z', linewidth=0.6)
+    gxplt, = ax2.plot(timesensor, gyrox, color='red', label='gyro x', linewidth=0.6)
+    gyplt, = ax2.plot(timesensor, gyroy, color='green', label='gyro y', linewidth=0.6)
+    gzplt, = ax2.plot(timesensor, gyroz, color='blue', label='gyro z', linewidth=0.6)
 
     # DEFINE LEGENDS
     ax1.legend(loc='upper right')
