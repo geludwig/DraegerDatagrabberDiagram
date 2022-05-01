@@ -1,4 +1,4 @@
-2
+3
 
 ### MODULES ###
 try:
@@ -28,8 +28,8 @@ satrateLower = 80
 def import_dialog():
     global filemonitor, filesensor
 
-    root = tk.Tk()
-    root.withdraw()
+    file = tk.Tk()
+    file.withdraw()
 
     # MONITOR
     print('[INFO] Import dialog.')
@@ -46,7 +46,8 @@ def import_dialog():
         print('[ERROR] No file selected.')
         exit()
     
-    root.destroy()
+    #file.mainloop()
+    file.destroy()
 
     print('[INFO] Monitor file: ', filemonitor)
     print('[INFO] Sensor file: ', filesensor)
