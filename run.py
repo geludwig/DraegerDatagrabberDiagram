@@ -1,4 +1,4 @@
-3
+4
 
 ### MODULES ###
 try:
@@ -11,15 +11,19 @@ except ModuleNotFoundError as err:
     input('Press any key to continue...')
     exit()
 
-### DISABLE MACOS ###
-if sys.platform == 'darwin':
-    print(sys.platform)
-    print('[ERROR] System runs macOS. Script disabled due to software limitations.')
-    input('Press any key to continue...')
-    exit()
-
 ### WEBPAGE ###
 urlscript = 'https://raw.githubusercontent.com/geludwig/DreamGuardAndDatagrabber/main/script.py'
+
+### CATCH macOS EXCEPTIONS ###
+if sys.platform == 'darwin':
+    print(sys.platform)
+    print('[WARNING] System runs macOS. Errors may occur due to platform limitations.')
+    input('Press any key to continue...')
+    try:
+        urllib.request.urlopen(urlscript)
+    except:
+        print('[ERROR] URL ERROR: May need to install CA certificates first.')
+
 
 ### GET PYTHON PATH ###
 pathpython = str(sys.executable)
