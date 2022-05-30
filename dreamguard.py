@@ -61,7 +61,7 @@ def listSerial():
     ports = serial.tools.list_ports.comports()
     if len(ports) >= 1:
         print("PORTS AVAILABLE:")
-        i = 0
+        i = 1
         for p in ports:
             print(i, " : ", p)
             i = i+1
@@ -77,7 +77,7 @@ def openConsole():
     global console
     # SELECT PORT
     consoleport = input("ENTER NUMBER OF 'Silicon Labs': ")
-    consoleport = str(ports[int(consoleport)]) # ID from str to int, then search in list "ports", then convert to string
+    consoleport = str(ports[int(consoleport)-1]) # ID from str to int, then search in list "ports", then convert to string
     consoleport = consoleport.split(" - ")
     consoleport = consoleport[0]
     # OPEN PORT
@@ -96,7 +96,7 @@ def openReceiver():
     global receiver
     # SELECT PORT
     receiverport = input("ENTER NUMBER OF 'Serial Cable': ")
-    receiverport = str(ports[int(receiverport)]) # ID from str to int, then search in list "ports", then convert to string
+    receiverport = str(ports[int(receiverport)-1]) # ID from str to int, then search in list "ports", then convert to string
     receiverport = receiverport.split(" - ")
     receiverport = receiverport[0]
     # OPEN PORT
