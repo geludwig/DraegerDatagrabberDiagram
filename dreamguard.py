@@ -10,6 +10,7 @@ erase = b'\x44\x0A'
 freq = b'\x66\x0A' # 26Hz
 startlog = b'\x12\x34\x0A'
 stoplog = b'\x46\x16\x00\x34\x10\x0A'
+starttransfer = b'\x88\x0A\x12\x34\x0A'
 deviceoff = b'\x11\x0A'
 stopstr = "FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF"
 #timelog = b'\x64\xHH\xMM\xSS\xMS\x0A'
@@ -21,25 +22,27 @@ def clear():
 
 ### SELECT COMMAND ###
 def selCommand():
+    print("")
     global command
     print("1 : START LOG")
     print("2 : STOP LOG")
     print("3 : DEVICE OFF")
     print("4 : TRANSFER DATA")
     print("5 : EXIT")
-    command = input("ENTER NUMBER TO SELECT COMMAND: ")
+    command = input("\nENTER NUMBER TO SELECT COMMAND: ")
     command = int(command)
 
 
 ### OPEN FILE ###
 def openFile():
-    global filename
+    print(">>> SELECT FILE NAME")
     print("")
+    global filename
     overwrite = ""
     filenameGood = False
 
     while filenameGood == False:
-        filename = input("INPUT FILE NAME:")
+        filename = input("INPUT FILE NAME AND PRESS ENTER:")
         filename = filename + ".txt"
         filenameGood = True
         if os.path.exists(filename):
@@ -56,24 +59,52 @@ def openFile():
 ### LIST SERIAL PORTS ###
 def listSerial():
     global ports
-    global iports
-    print("")
-    ports = serial.tools.list_ports.comports()
-    if len(ports) >= 1:
-        print("PORTS AVAILABLE:")
-        i = 1
-        for p in ports:
-            print(i, " : ", p)
-            i = i+1
-        iports = i
-    else:
-        print("NO PORTS AVAILABLE")
-        input("PRESS ENTER TO EXIT")
-        exit()
+    portsGood = False
+    attempt = 0
+    timeout = 0
+
+    while portsGood == False:
+        ports = serial.tools.list_ports.comports()
+        if (command != 4) and (len(ports) > 0):
+            print(">>> SELECT PORTS")
+            print("")
+            i = 1
+            for p in ports:
+                print(i, " : ", p)
+                i = i+1
+            portsGood = True
+        elif (command == 4) and (len(ports) > 1):
+            print(">>> SELECT PORTS")
+            print("")
+            i = 1
+            for p in ports:
+                print(i, " : ", p)
+                i = i+1
+            portsGood = True
+        elif attempt == 0:
+            attempt = 1
+            print(">>> SELECT PORTS")
+            print("")
+            print("NOT ENOUGH PORTS AVAILABLE")
+            input("PRESS ENTER TO TRY AGAIN")
+            clear()
+            print(">>> SELECT PORTS")
+            print("")
+            print("REFRESHING PORTS. PLEASE WAIT ...")
+            while len(ports) < 2 or timeout > 10:
+                ports = serial.tools.list_ports.comports()
+                time.sleep(1)
+                timeout = timeout+1
+            clear()
+        else:
+            print("NO PORTS AVAILABLE")
+            input("PRESS ENTER TO EXIT")
+            exit()
 
 
 ### OPEN SERIAL CONSOLE ###
 def openConsole():
+    print("")
     global console
     # SELECT PORT
     consoleport = input("ENTER NUMBER OF 'Silicon Labs': ")
@@ -93,6 +124,7 @@ def openConsole():
 
 ### OPEN SERIAL RECEIVER ###
 def openReceiver():
+    print("")
     global receiver
     # SELECT PORT
     receiverport = input("ENTER NUMBER OF 'Serial Cable': ")
@@ -115,8 +147,8 @@ def openReceiver():
 
 ### START LOG ###
 def startLog():
+    print(">>> START LOG")
     print("")
-    print("STARTING LOG")
     console.write(erase)
     time.sleep(3)
     console.write(freq)
@@ -138,8 +170,8 @@ def startLog():
 
 ### STOP LOG ###
 def stopLog():
+    print(">>> STOP LOG")
     print("")
-    print("STOP LOG")
     console.write(stoplog)
     console.close()
     print("OK")
@@ -148,8 +180,8 @@ def stopLog():
 
 #### DEVICE OFF ###
 def offDevice():
+    print(">>> DEVICE OFF")
     print("")
-    print("DEVICE OFF")
     console.write(deviceoff)
     console.close()
     print("OK")
@@ -158,15 +190,15 @@ def offDevice():
 
 ### TRANSFER DATA ###
 def transferData():
+    print(">>> TRANSFER DATA")
     print("")
+    print("TRANSFERING ...")
     stop = False
     i = 0
-    print("TRANSFER DATA")
     # FILE OPEN
     file = open(filename, "a")
     # SEND START COMMAND
-    startcommand = b'\x88\x0A\x12\x34\x0A'
-    console.write(startcommand)
+    console.write(starttransfer)
     console.close()
     # LOOP SERIAL
     while stop is False:
@@ -174,10 +206,10 @@ def transferData():
         hexstr = byte.hex(' ', 1).upper() # bytes to hex [str with delimiter space and split every byte and capital hex letters]
         if hexstr == stopstr: # STOP if string matches stopstr [end of file]
             stop = True
-            print("\nEND OF FILE REACHED")
+            print("\nEND OF DATA")
         elif len(hexstr) != 65: # STOP if string smaller than 22 bytes [read() timeout]
             stop = True
-            print("\nEND OF FILE REACHED")
+            print("\nEND OF STREAM")
         elif len(hexstr) == 65: # SAVE: string has 22 bytes and no stop condition
             file.write(hexstr + "\n")
             i = i+1
@@ -186,8 +218,8 @@ def transferData():
             print("\nERROR")
             input("PRESS ENTER TO EXIT")
             exit()
-    file.close()
     receiver.close()
+    file.close()
 
 
 ### TRUNC DATA ###
@@ -204,7 +236,7 @@ def truncData():
 def testData():
     print("")
     print("CHECK DATA INTEGRITY")
-    i = 0
+    i = 1
     file = open(filename, 'r')
     lines = file.readlines()
 
@@ -233,36 +265,41 @@ def testData():
 command = 0
 while command == 0:
     clear()
+    print(">>> DREAMGUARD MANAGER")
     selCommand()
     if command == 1:
+        clear()
         listSerial()
         openConsole()
+        clear()
         startLog()
         command = 0
     elif command == 2:
+        clear()
         listSerial()
         openConsole()
+        clear()
         stopLog()
         command = 0
     elif command == 3:
+        clear()
         listSerial()
         openConsole()
+        clear()
         offDevice()
         command = 0
     elif command == 4:
+        clear()
         listSerial()
-        if iports < 2:
-            print("\nNOT ENOUGH COM PORTS")
-            input("PRESS ENTER TO CONTINUE")
-            command = 0
-        else:
-            openConsole()
-            openReceiver()
-            openFile()
-            transferData()
-            truncData()
-            testData()
-            command = 0
+        openConsole()
+        openReceiver()
+        clear()
+        openFile()
+        clear()
+        transferData()
+        truncData()
+        testData()
+        command = 0
     elif command == 5:
         exit()
     else:
