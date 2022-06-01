@@ -60,46 +60,38 @@ def openFile():
 def listSerial():
     global ports
     portsGood = False
-    attempt = 0
-    timeout = 0
+    timeout = 30
+    timeoutStr = str(timeout)
+    
+    if command == 4:
+        reqPorts = 2
+    else:
+        reqPorts = 1
 
-    while portsGood == False:
+    print(">>> SELECT PORTS")
+    print("")
+    ports = serial.tools.list_ports.comports()
+
+    while (len(ports) < reqPorts) and (timeout >= 0):
         ports = serial.tools.list_ports.comports()
-        if (command != 4) and (len(ports) > 0):
-            print(">>> SELECT PORTS")
-            print("")
-            i = 1
-            for p in ports:
-                print(i, " : ", p)
-                i = i+1
-            portsGood = True
-        elif (command == 4) and (len(ports) > 1):
-            print(">>> SELECT PORTS")
-            print("")
-            i = 1
-            for p in ports:
-                print(i, " : ", p)
-                i = i+1
-            portsGood = True
-        elif attempt == 0:
-            attempt = 1
-            print(">>> SELECT PORTS")
-            print("")
-            print("NOT ENOUGH PORTS AVAILABLE")
-            input("PRESS ENTER TO TRY AGAIN")
-            clear()
-            print(">>> SELECT PORTS")
-            print("")
-            print("REFRESHING PORTS. PLEASE WAIT ...")
-            while len(ports) < 2 or timeout > 10:
-                ports = serial.tools.list_ports.comports()
-                time.sleep(1)
-                timeout = timeout+1
-            clear()
+        print("WAITING FOR ",  reqPorts - len(ports), " MORE PORTS (" + timeoutStr + "s)", end="\r")
+        timeout = timeout-1
+        if timeout < 10:
+            timeoutStr = "0"+str(timeout)
         else:
-            print("NO PORTS AVAILABLE")
-            input("PRESS ENTER TO EXIT")
-            exit()
+            timeoutStr = str(timeout)
+        time.sleep(1)
+    print("\n")
+
+    if len(ports) == reqPorts:
+        i = 1
+        for p in ports:
+            print(i, " : ", p)
+            i = i+1
+    else:
+        print("NOT ENOUGH PORTS AVAILABLE")
+        input("PRESS ENTER TO EXIT")
+        exit()
 
 
 ### OPEN SERIAL CONSOLE ###
