@@ -1,9 +1,18 @@
-import serial
-import serial.tools.list_ports
-import os
-import time
-import datetime
+try:
+    import os
+    import sys
+    import serial
+    import serial.tools.list_ports
+    import time
+    import datetime
+except ModuleNotFoundError as err:
+    print(err, "INSTALL MODULE WITH 'pip' (python -m pip install <module>)")
+    input("PRESS ENTER TO EXIT")
+    exit()
 
+if sys.platform == 'darwin':
+    print("SCRIPT OPTIMIZED FOR WINDOWS AND LINUX")
+    input("PRESS ENTER TO EXIT")
 
 ### COMMANDS ###
 erase = b'\x44\x0A'
