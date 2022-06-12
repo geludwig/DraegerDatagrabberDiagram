@@ -37,19 +37,25 @@ def selCommand():
     print("3 : DEVICE OFF")
     print("4 : TRANSFER DATA")
     print("5 : EXIT")
-    command = input("\nENTER NUMBER TO SELECT COMMAND: ")
-    command = int(command)
+    print("")
+    while True:
+        try:
+            command = input("ENTER NUMBER TO SELECT COMMAND: ")
+            command = int(command)
+            if 0 < command < 6:
+                break
+        except:
+            pass
 
 ### OPEN FILE ###
 def openFile():
     print(">>> SELECT FILE NAME")
-    print("")
     global filename
     global flag
     overwrite = ""
     filenameGood = False
     while filenameGood == False:
-        filename = input("INPUT FILE NAME AND PRESS ENTER:")
+        filename = input("\nINPUT FILE NAME AND PRESS ENTER:")
         filename = filename + ".txt"
         filenameGood = True
         if os.path.exists(filename):
@@ -59,9 +65,8 @@ def openFile():
             elif overwrite == "n":
                 filenameGood = False
             else:
-                print("")
-                print("NO FILE NAME SPECIFIED")
-                input("PRESS ENTER TO CONTINUE")
+                print("\nNO FILE NAME SPECIFIED")
+                input("\nPRESS ENTER TO CONTINUE")
                 flag = True
     return flag
             
@@ -69,7 +74,7 @@ def openFile():
 def listSerial():
     global ports
     global flag
-    timeout = 5
+    timeout = 30
     timeoutStr = str(timeout)
     if command == 4:
         reqPorts = 2
@@ -93,28 +98,26 @@ def listSerial():
             print(i, " : ", p)
             i = i+1
     else:
-        print("\n")
-        print("NOT ENOUGH PORTS AVAILABLE")
-        input("PRESS ENTER TO CONTINUE")
+        print("\nNOT ENOUGH PORTS AVAILABLE")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### OPEN SERIAL CONSOLE ###
 def openConsole():
-    print("")
     global console
     global flag
     # SELECT PORT
+    print("")
     while True:
         try:
-            consoleport = int(input("ENTER NUMBER OF 'Silicon Labs': "))
+            consoleport = input("ENTER NUMBER OF 'Silicon Labs': ")
             consoleport = str(ports[int(consoleport)-1]) # ID from str to int, then search in list "ports", then convert to string
             consoleport = consoleport.split(" - ")
             consoleport = consoleport[0]
             break
         except:
             pass
-        
     # OPEN PORT
     try:
         console = serial.Serial()
@@ -127,20 +130,20 @@ def openConsole():
         console.open()
     except serial.SerialException as err:
         print("\n[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### OPEN SERIAL RECEIVER ###
 def openReceiver():
-    print("")
     global receiver
     global flag
     # SELECT PORT
+    print("")
     while True:
         try:
             receiverport = input("ENTER NUMBER OF 'Serial Cable': ")
@@ -165,18 +168,17 @@ def openReceiver():
         receiver.open()
     except serial.SerialException as err:
         print("\n[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("\n[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### START LOG ###
 def startLog():
     print(">>> START LOG")
-    print("")
     global flag
     try:
         console.write(erase)
@@ -194,35 +196,34 @@ def startLog():
         console.write(b'\x0A')
         console.write(startlog)
         console.close()
-        print("OK")
-        input("PRESS ENTER TO CONTINUE")
+        print("\nOK")
+        input("\nPRESS ENTER TO CONTINUE")
     except serial.SerialException as err:
-        print("[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : ",err)
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### STOP LOG ###
 def stopLog():
     print(">>> STOP LOG")
-    print("")
     global flag
     try:
         console.write(stoplog)
         console.close()
-        print("OK")
-        input("PRESS ENTER TO CONTINUE")
+        print("\nOK")
+        input("\nPRESS ENTER TO CONTINUE")
     except serial.SerialException as err:
-        print("[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        print("\nERROR] : ",err)
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
         
@@ -230,31 +231,31 @@ def stopLog():
 #### DEVICE OFF ###
 def offDevice():
     print(">>> DEVICE OFF")
-    print("")
     global flag
     try:
         console.write(deviceoff)
         console.close()
-        print("OK")
-        input("PRESS ENTER TO CONTINUE")
+        print("\nOK")
+        input("\nPRESS ENTER TO CONTINUE")
     except serial.SerialException as err:
-        print("[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : ",err)
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### TRANSFER DATA ###
 def transferData():
     print(">>> TRANSFER DATA")
-    print("")
     global flag
+    global linesTransfer
+    linesTransfer = 0
     try:
-        print("TRANSFERING ...")
-        stop = False
+        print("\nTRANSFERING ...")
+        print("0", end ="\r")
         i = 0
         # FILE OPEN
         file = open(filename, "a")
@@ -262,34 +263,43 @@ def transferData():
         console.write(starttransfer)
         console.close()
         # LOOP SERIAL
-        while stop is False:
+        while True:
             byte = receiver.read(22) # wait till 22 bytes in buffer then write to byte
             hexstr = byte.hex(' ', 1).upper() # bytes to hex [str with delimiter space and split every byte and capital hex letters]
             if hexstr == stopstr: # STOP if string matches stopstr [end of file]
-                stop = True
                 print("\nEND OF DATA")
+                break
             elif len(hexstr) != 65: # STOP if string smaller than 22 bytes [read() timeout]
-                stop = True
                 print("\nEND OF STREAM")
+                break
             elif len(hexstr) == 65: # SAVE: string has 22 bytes and no stop condition
                 file.write(hexstr + "\n")
                 i = i+1
                 print(i, end="\r")
             else:
                 print("")
-                print("ERROR")
-                input("PRESS ENTER TO CONTINUE")
-                stop = True
+                print("\n[ERROR] : unknown")
+                input("\nPRESS ENTER TO CONTINUE")
                 flag = True
+                break
         receiver.close()
-        file.close()
+        try:
+            file.flush() # force write from buffer to file
+            file.close()
+        except:
+            print("\n[ERROR] : CANT WRITE BUFFER TO FILE")
+            input("\nPRESS ENTER TO CONTINUE")
+            flag = True
+        linesTransfer = i-1
     except serial.SerialException as err:
+        print("")
         print("\n[ERROR] : ",err)
-        input("PRESS ENTER TO CONTINUE")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     except:
-        print("\n[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
@@ -304,15 +314,15 @@ def truncData():
         file.writelines(lines[:-1])
         file.close()
     except:
-        print("\n[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag
 
 ### CHECK DREAMGUARD DATA INTEGRETY ###
 def testData():
+    print(">>> CHECK DATA INTEGRITY")
     print("")
-    print("CHECK DATA INTEGRITY")
     global flag
     i = 1
     try:
@@ -324,23 +334,27 @@ def testData():
             for x in lines:
                 hour = int(x[:2], 16)
                 if hour == hourold:
-                    print(i, end="\r")
+                    print(i,"/",linesTransfer, end="\r")
                 elif hour == (hourold+1):
-                    print(i, end="\r")
+                    print(i,"/",linesTransfer, end="\r")
                 else:
-                    print("ERROR")
-                    input("PRESS ENTER TO EXIT")
+                    print("")
+                    print("\n[ERROR] : unknown")
+                    input("\nPRESS ENTER TO EXIT")
                     exit()
                 hourold = hour
                 i = i+1
+            print("")
             print("\nOK")
-            input("PRESS ENTER TO CONTINUE")
+            input("\nPRESS ENTER TO CONTINUE")
         else:
+            print("")
             print("\nFILE EMPTY")
-            input("PRESS ENTER TO CONTINUE")
+            input("\nPRESS ENTER TO CONTINUE")
     except:
-        print("\n[ERROR] : not defined")
-        input("PRESS ENTER TO CONTINUE")
+        print("")
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO CONTINUE")
         flag = True
     return flag       
 
@@ -385,10 +399,13 @@ while command == 0:
         clear()
         if flag == False: flag = transferData()
         if flag == False: flag = truncData()
+        clear()
         if flag == False: flag = testData()
         flag = False
         command = 0
     elif command == 5:
         exit()
     else:
-        command = 0
+        print("\n[ERROR] : unknown")
+        input("\nPRESS ENTER TO EXIT")
+        exit()
