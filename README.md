@@ -1,6 +1,7 @@
-# DraegerDatagrabberDiagram
-This python script converts recorded data from 'Draeger Datagrabber' and 'Draeger DreamGuard' to a visually appealing diagram.
+# DraegerDreamguard
 
-Run via run.py.
+sensor.py : Used to transfer data via serial interface from sensor to hex file.
 
-Input files are a monitor.csv and sensor.txt. See under '/examples' for example files.
+run.py : Update script for diagram.py
+
+diagram.py : Convert sensor data and Datagrabber data (Draeger Monitoring Tool for Infinity Devices) to diagram.
