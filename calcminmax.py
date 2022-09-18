@@ -68,8 +68,8 @@ def calc_data():
     print(f"          | {header[4]:<9} | {satmin:<6} | {satmax:<6} | {sataverage:<7.2f} | {satmedian:<6}")
     
     # TIMEFRAME SEQUENCE
-    print("--------- | --------- | ------ | ------ | ------- | ------")
     for i in starttimes:
+        print("--------- | --------- | ------ | ------ | ------- | ------")
         resptemp = resp[i:(i+timestep)]
         hearttemp = heart[i:(i+timestep)]
         sattemp = sat[i:(i+timestep)]
@@ -98,3 +98,4 @@ import_dialog()
 import_data()
 clean_data()
 calc_data()
+input('Press ENTER key to continue...')
