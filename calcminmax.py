@@ -47,21 +47,21 @@ def calc_data():
     print("--------- | --------- | ------ | ------ | ------- | ------")
 
     # COMPLETE TIMEFRAME
-    resptemp = resp[starttimes[0]:(starttimes[-1]+599)]
-    hearttemp = heart[starttimes[0]:(starttimes[-1]+599)]
-    sattemp = sat[starttimes[0]:(starttimes[-1]+599)]
+    resptemp = resp[starttimes[0]:(starttimes[-1]+timestep)]
+    hearttemp = heart[starttimes[0]:(starttimes[-1]+timestep)]
+    sattemp = sat[starttimes[0]:(starttimes[-1]+timestep)]
 
-    respmin = max(resptemp)
+    respmin = min(resptemp)
     respmax = max(resptemp)
     respaverage = stat.mean(resptemp)
     respmedian = stat.median(resptemp)
-    print(f"{starttimes[0]}-{(starttimes[-1]+599)} | {header[2]:<9} | {respmin:<6} | {respmax:<6} | {respaverage:<7.2f} | {respmedian:<6}")
-    heartmin = max(hearttemp)
+    print(f"{starttimes[0]}-{(starttimes[-1]+timestep)} | {header[2]:<9} | {respmin:<6} | {respmax:<6} | {respaverage:<7.2f} | {respmedian:<6}")
+    heartmin = min(hearttemp)
     heartmax = max(hearttemp)
     heartaverage = stat.mean(hearttemp)
     heartmedian = stat.median(hearttemp)
     print(f"          | {header[3]:<9} | {heartmin:<6} | {heartmax:<6} | {heartaverage:<7.2f} | {heartmedian:<6}")
-    satmin = max(sattemp)
+    satmin = min(sattemp)
     satmax = max(sattemp)
     sataverage = stat.mean(sattemp)
     satmedian = stat.median(sattemp)
@@ -74,19 +74,19 @@ def calc_data():
         hearttemp = heart[i:(i+timestep)]
         sattemp = sat[i:(i+timestep)]
         # RESP
-        respmin = max(resptemp)
+        respmin = min(resptemp)
         respmax = max(resptemp)
         respaverage = stat.mean(resptemp)
         respmedian = stat.median(resptemp)
-        print(f"{i}-{i+599} | {header[2]:<9} | {respmin:<6} | {respmax:<6} | {respaverage:<7.2f} | {respmedian:<6}")
+        print(f"{i}-{i+timestep} | {header[2]:<9} | {respmin:<6} | {respmax:<6} | {respaverage:<7.2f} | {respmedian:<6}")
         # HEART
-        heartmin = max(hearttemp)
+        heartmin = min(hearttemp)
         heartmax = max(hearttemp)
         heartaverage = stat.mean(hearttemp)
         heartmedian = stat.median(hearttemp)
         print(f"          | {header[3]:<9} | {heartmin:<6} | {heartmax:<6} | {heartaverage:<7.2f} | {heartmedian:<6}")
         # SAT
-        satmin = max(sattemp)
+        satmin = min(sattemp)
         satmax = max(sattemp)
         sataverage = stat.mean(sattemp)
         satmedian = stat.median(sattemp)
