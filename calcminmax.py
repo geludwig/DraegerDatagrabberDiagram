@@ -124,13 +124,13 @@ def export_data():
         with open('export.csv', 'a') as file:
             wr = csv.writer(file, quoting=csv.QUOTE_ALL)
             wr.writerow(lstexp)
-
-    with open('export.csv', 'a') as file:
-        wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-        wr.writerow(csvheader1)
-        wr.writerow(csvheader2)
-        wr.writerow(csvheader3)
-        wr.writerow(lstexp)
+    else:
+        with open('export.csv', 'a') as file:
+            wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+            wr.writerow(csvheader1)
+            wr.writerow(csvheader2)
+            wr.writerow(csvheader3)
+            wr.writerow(lstexp)
 
 ### START ###
 import_dialog()
