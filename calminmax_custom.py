@@ -110,18 +110,18 @@ def calc_data():
 
 ### SAVE TO CSV ###
 def export_data():
-    if os.path.exists("export.csv"):
-        with open('export.csv', 'a') as file:
+    if os.path.exists('export.csv'):
+        with open('export.csv', 'a', newline='') as file:
             wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-            wr.writerow("")
-            wr.writerow(csvheader1)
-            wr.writerow(csvheader2)
-            wr.writerow(csvheader3)
+            #wr.writerow("")
+            #wr.writerow(csvheader1)
+            #wr.writerow(csvheader2)
+            #wr.writerow(csvheader3)
             wr.writerow(lstexp)
     else:
-        with open('export.csv', 'a') as file:
+        with open('export.csv', 'a', newline='') as file:
             wr = csv.writer(file, quoting=csv.QUOTE_ALL)
-            wr.writerow(csvheader1)
+            #wr.writerow(csvheader1)
             wr.writerow(csvheader2)
             wr.writerow(csvheader3)
             wr.writerow(lstexp)
