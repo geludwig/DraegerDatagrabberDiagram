@@ -13,7 +13,8 @@ except ModuleNotFoundError as err:
     exit()
 
 ### VARIABLES ###
-header = ["Timeframe", "Value", "Resprate", "Heartrate", "Satrate", "Min", "Max", "Average", "Median", ]
+header = ["Timeframe", "Value", "Resprate", "Heartrate", "Satrate", "Min", "Max", "Average", "Median"]
+section = ["Atmung 1", "Atmung 2", "Atmung 3", "Atmung 4"]
 lstexp = []
 
 ### IMPORT DIALOG ###
@@ -36,9 +37,19 @@ def input_starttimes():
     endtimeList = []
     starttime = 0
     endtime = 0
+    i = 0
+    print("")
+    print("Enter start and end times.")
+    print("Enter same numbers for start and end to write 'na' to .csv file.")
+    print("Entering no starttime and pressing 'Enter' when finished.")
     while True:
+        print("")
+        print(section[i])
+        i=i+1
+        if i >= len(section):
+            i = 0
         try:
-            starttime = int(input("Enter starttime (nothing if finished): "))
+            starttime = int(input("Enter starttime: "))
         except:
             break
         endtime = int(input("Enter endtime: "))
@@ -85,28 +96,36 @@ def clean_data_unplausible():
 ### CALC DATA
 def calc_data():
     global lstexp, resptemp, hearttemp, sattemp
+    #print(starttimeList)
+    #print(endtimeList)
+    #input()
     # TIMEFRAME SEQUENCE
     for x in starttimeList:
-        resptemp = resp[x:(endtimeList[starttimeList.index(x)])]
-        hearttemp = heart[x:(endtimeList[starttimeList.index(x)])]
-        sattemp = sat[x:(endtimeList[starttimeList.index(x)])]
-        clean_data_unplausible()
-        # RESP
-        respmin = min(resptemp)
-        respmax = max(resptemp)
-        respaverage = round(stat.mean(resptemp), 2)
-        respmedian = stat.median(resptemp)
-        # HEART
-        heartmin = min(hearttemp)
-        heartmax = max(hearttemp)
-        heartaverage = round(stat.mean(hearttemp), 2)
-        heartmedian = stat.median(hearttemp)
-        # SAT
-        satmin = min(sattemp)
-        satmax = max(sattemp)
-        sataverage = round(stat.mean(sattemp), 2)
-        satmedian = stat.median(sattemp)
-        lstexp.extend((respmin, respmax, respaverage, respmedian, heartmin, heartmax, heartaverage, heartmedian, satmin, satmax, sataverage, satmedian))
+        #print(endtimeList[starttimeList.index(x)])
+        #input()
+        if x == (endtimeList[starttimeList.index(x)]):
+            lstexp.extend(("na", "na", "na", "na", "na", "na", "na", "na", "na", "na", "na", "na"))
+        else:
+            resptemp = resp[x:(endtimeList[starttimeList.index(x)])]
+            hearttemp = heart[x:(endtimeList[starttimeList.index(x)])]
+            sattemp = sat[x:(endtimeList[starttimeList.index(x)])]
+            clean_data_unplausible()
+            # RESP
+            respmin = min(resptemp)
+            respmax = max(resptemp)
+            respaverage = round(stat.mean(resptemp), 2)
+            respmedian = stat.median(resptemp)
+            # HEART
+            heartmin = min(hearttemp)
+            heartmax = max(hearttemp)
+            heartaverage = round(stat.mean(hearttemp), 2)
+            heartmedian = stat.median(hearttemp)
+            # SAT
+            satmin = min(sattemp)
+            satmax = max(sattemp)
+            sataverage = round(stat.mean(sattemp), 2)
+            satmedian = stat.median(sattemp)
+            lstexp.extend((respmin, respmax, respaverage, respmedian, heartmin, heartmax, heartaverage, heartmedian, satmin, satmax, sataverage, satmedian))
 
 ### SAVE TO CSV ###
 def export_data():
