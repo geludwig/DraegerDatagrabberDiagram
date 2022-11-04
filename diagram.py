@@ -6,7 +6,6 @@ try:
     import tkinter as tk
     from tkinter import filedialog
     import threading
-    #from cmath import nan
     import math
     import time
     from datetime import datetime
