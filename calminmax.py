@@ -24,14 +24,22 @@ def clear():
 
 print("##### PYTHON INITIAL CHECK #####")
 
-if sys.platform == "darwin":
-    print("[ERROR] macOSX platform not supported. Exiting.")
+if sys.platform == "win32":
+    pass
+elif sys.platform == "linux":
+    pass
+else:
+    print("[ERROR] OS platform not supported. Exiting.")
     input('Press ENTER key to exit...')
     exit()
 
 try:
-    subprocess.call(["python3", "--version"])
-    print("[INFO] python3 found.")
+    if sys.platform == "win32":
+        subprocess.call(["py", "--version"])
+        print("[INFO] python3 found.")
+    else:
+        subprocess.call(["python3", "--version"])
+        print("[INFO] python3 found.")
 except:
     print("[ERROR] python installation not found. Was it added to PATH?")
     input('Press ENTER key to exit...')
@@ -41,7 +49,10 @@ try:
     import pandas as pd
 except ModuleNotFoundError as err:
     print("[WARNING] ", err, ". Trying to install...")
-    subprocess.call(["python3", "-m", "pip", "install", "pandas"])
+    if sys.platform == "win32":
+        subprocess.call(["py", "-m", "pip", "install", "pandas"])
+    else:
+        subprocess.call(["python3", "-m", "pip", "install", "pandas"])
     try:
         import pandas
     except ModuleNotFoundError as err:
