@@ -1,18 +1,65 @@
+### MODULES ###
 try:
     import os
-    import serial
-    import serial.tools.list_ports
+    import sys
+    import subprocess
     import time
     import datetime
 except ModuleNotFoundError as err:
-    print(err, ". Install with 'pip' (python -m pip install <module>)")
-    input("Press Enter to exit")
+    print("[ERROR] ", err, ". Should be a default package.")
+    input('Press ENTER key to exit...')
+    exit()
+    
+### INITIAL CKECK ###
+def clear():
+    if sys.platform == "win32":
+        os.system("cls")
+    elif sys.platform == "linux":
+        os.system("clear")
+    else:
+        pass
+
+print("##### PYTHON INITIAL CHECK #####")
+
+if sys.platform == "win32":
+    pass
+elif sys.platform == "linux":
+    pass
+else:
+    print("[ERROR] OS platform not supported. Exiting.")
+    input('Press ENTER key to exit...')
     exit()
 
-### DISABLE MACOS ###
-if os.name == 'darwin':
-    print("SCRIPT OPTIMIZED FOR WINDOWS AND LINUX")
-    input("PRESS ENTER TO EXIT")
+try:
+    if sys.platform == "win32":
+        subprocess.call(["py", "--version"])
+        print("[INFO] python3 found.")
+    else:
+        subprocess.call(["python3", "--version"])
+        print("[INFO] python3 found.")
+except:
+    print("[ERROR] python installation not found. Was it added to PATH?")
+    input('Press ENTER key to exit...')
+    exit()
+
+try:
+    import serial
+except ModuleNotFoundError as err:
+    print("[WARNING] ", err, ". Trying to install...")
+    if sys.platform == "win32":
+        subprocess.call(["py", "-m", "pip", "install", "serial"])
+    else:
+        subprocess.call(["python3", "-m", "pip", "install", "serial"])
+    try:
+        import serial
+        import serial.tools.list_ports
+    except ModuleNotFoundError as err:
+        print("[ERROR] ", err, ". Installation failed.")
+        input('Press ENTER key to exit...')
+        exit()
+
+clear()
+print("##### SENSOR.PY #####")
 
 ### COMMANDS ###
 erase = b'\x44\x0A'
