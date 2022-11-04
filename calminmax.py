@@ -1,16 +1,56 @@
-
+### MODULES ###
 try:
     import os
-    from cmath import nan
+    import sys
+    import subprocess
     import tkinter as tk
     from tkinter import filedialog
-    import pandas as pd
     import statistics as stat
     import csv
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first (python3 -m pip install <module>).')
+    print("[ERROR] ", err, ". Should be a default package.")
     input('Press ENTER key to exit...')
     exit()
+
+
+### INITIAL CKECK ###
+def clear():
+    if sys.platform == "win32":
+        os.system("cls")
+    elif sys.platform == "linux":
+        os.system("clear")
+    else:
+        pass
+
+print("##### PYTHON INITIAL CHECK #####")
+
+if sys.platform == "darwin":
+    print("[ERROR] macOSX platform not supported. Exiting.")
+    input('Press ENTER key to exit...')
+    exit()
+
+try:
+    subprocess.call(["python3", "--version"])
+    print("[INFO] python3 found.")
+except:
+    print("[ERROR] python installation not found. Was it added to PATH?")
+    input('Press ENTER key to exit...')
+    exit()
+
+try:
+    import pandas as pd
+except ModuleNotFoundError as err:
+    print("[WARNING] ", err, ". Trying to install...")
+    subprocess.call(["python3", "-m", "pip", "install", "pandas"])
+    try:
+        import pandas
+    except ModuleNotFoundError as err:
+        print("[ERROR] ", err, ". Installation failed.")
+        input('Press ENTER key to exit...')
+        exit()
+
+clear()
+print("##### CALCMINMAX.PY #####")
 
 ### VARIABLES ###
 header = ["Timeframe", "Value", "Resprate", "Heartrate", "Satrate", "Min", "Max", "Average", "Median"]
@@ -154,4 +194,4 @@ clean_data_nan()
 calc_data()
 export_data()
 print("")
-input('Press ENTER key to continue...')
+input('Press ENTER key to exit...')
