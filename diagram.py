@@ -1,22 +1,99 @@
-6
-
 ### MODULES ###
 try:
-    from cmath import nan
+    import os
+    import sys
+    import subprocess
     import tkinter as tk
     from tkinter import filedialog
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import numpy as np
-    import sys
     import threading
+    #from cmath import nan
+    import math
     import time
     from datetime import datetime
 except ModuleNotFoundError as err:
-    print('[ERROR] ', err, '. Install required module with "pip" command first (e.g. python3 -m pip install <module>).')
-    input('Press any key to continue...')
+    print("[ERROR] ", err, ". Should be a default package.")
+    input('Press ENTER key to exit...')
+    exit()
+    
+### INITIAL CKECK ###
+def clear():
+    if sys.platform == "win32":
+        os.system("cls")
+    elif sys.platform == "linux":
+        os.system("clear")
+    else:
+        pass
+
+print("##### PYTHON INITIAL CHECK #####")
+
+if sys.platform == "win32":
+    pass
+elif sys.platform == "linux":
+    pass
+else:
+    print("[ERROR] OS platform not supported. Exiting.")
+    input('Press ENTER key to exit...')
     exit()
 
+try:
+    if sys.platform == "win32":
+        subprocess.call(["py", "--version"])
+        print("[INFO] python3 found.")
+    else:
+        subprocess.call(["python3", "--version"])
+        print("[INFO] python3 found.")
+except:
+    print("[ERROR] python installation not found. Was it added to PATH?")
+    input('Press ENTER key to exit...')
+    exit()
+
+try:
+    import pandas as pd
+except ModuleNotFoundError as err:
+    print("[WARNING] ", err, ". Trying to install...")
+    if sys.platform == "win32":
+        subprocess.call(["py", "-m", "pip", "install", "pandas"])
+    else:
+        subprocess.call(["python3", "-m", "pip", "install", "pandas"])
+    try:
+        import pandas
+    except ModuleNotFoundError as err:
+        print("[ERROR] ", err, ". Installation failed.")
+        input('Press ENTER key to exit...')
+        exit()
+
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError as err:
+    print("[WARNING] ", err, ". Trying to install...")
+    if sys.platform == "win32":
+        subprocess.call(["py", "-m", "pip", "install", "matplotlib"])
+    else:
+        subprocess.call(["python3", "-m", "pip", "install", "matplotlib"])
+    try:
+        import matplotlib.pyplot as plt
+    except ModuleNotFoundError as err:
+        print("[ERROR] ", err, ". Installation failed.")
+        input('Press ENTER key to exit...')
+        exit()
+
+try:
+    import numpy as np
+except ModuleNotFoundError as err:
+    print("[WARNING] ", err, ". Trying to install...")
+    if sys.platform == "win32":
+        subprocess.call(["py", "-m", "pip", "install", "numpy"])
+    else:
+        subprocess.call(["python3", "-m", "pip", "install", "numpy"])
+    try:
+        import numpy as np
+    except ModuleNotFoundError as err:
+        print("[ERROR] ", err, ". Installation failed.")
+        input('Press ENTER key to exit...')
+        exit()
+
+clear()
+print("##### DIAGRAM.PY #####")
 
 ### USER DEFINED VARIABLES / LIMITS ###
 hertz = 26
@@ -25,7 +102,6 @@ resprateLower = 35
 heartrateUpper = 200
 heartrateLower = 80
 satrateLower = 80
-
 
 ### IMPORT DIALOG ###
 def import_dialog():
@@ -103,9 +179,9 @@ def calc_monitor():
         csvflag = 0
 
     # CALC LIMITS
-    respratelim = [nan if resprateLower<x<resprateUpper else x for x in resprate]
-    heartratelim = [nan if heartrateLower<x<heartrateUpper else x for x in heartrate]
-    satratelim = [nan if satrateLower<x else x for x in satrate]
+    respratelim = [math.nan if resprateLower<x<resprateUpper else x for x in resprate]
+    heartratelim = [math.nan if heartrateLower<x<heartrateUpper else x for x in heartrate]
+    satratelim = [math.nan if satrateLower<x else x for x in satrate]
 
     # RETURN
     return csvflag, clockmonitor, timemonitor, resprate, heartrate, satrate, respratelim, heartratelim, satratelim
