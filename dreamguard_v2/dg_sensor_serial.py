@@ -352,7 +352,7 @@ def gui():
 
 ### CALL FUNCTIONS ###
 def main_sensor():
-    global command
+    global command, flag
 
     command = -1
     flag = False
