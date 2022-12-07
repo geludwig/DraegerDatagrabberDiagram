@@ -32,7 +32,7 @@ def openFile():
     overwrite = ""
     filenameGood = False
     while filenameGood == False:
-        filename = input("\nINPUT FILE NAME AND PRESS ENTER:")
+        filename = input("\nINPUT FILE NAME AND PRESS ENTER: ")
         filename = filename + ".txt"
         filenameGood = True
         if os.path.exists(filename):
@@ -51,7 +51,7 @@ def openFile():
 def listSerial():
     global ports
     global flag
-    timeout = 5
+    timeout = 20
     timeoutStr = str(timeout)
     if command == 4:
         reqPorts = 2
@@ -88,7 +88,7 @@ def openConsole():
     print("")
     while True:
         try:
-            consoleport = input("ENTER NUMBER OF 'Silicon Labs': ")
+            consoleport = input("[INFO] Enter number of 'Silicon Labs (CP2102)': ")
             consoleport = str(ports[int(consoleport)-1]) # ID from str to int, then search in list "ports", then convert to string
             consoleport = consoleport.split(" - ")
             consoleport = consoleport[0]
@@ -123,7 +123,7 @@ def openReceiver():
     print("")
     while True:
         try:
-            receiverport = input("ENTER NUMBER OF 'Serial Cable': ")
+            receiverport = input("[INFO] Enter number of 'Serial Cable': ")
             receiverport = str(ports[int(receiverport)-1]) # ID from str to int, then search in list "ports", then convert to string
             receiverport = receiverport.split(" - ")
             receiverport = receiverport[0]
@@ -228,6 +228,8 @@ def offDevice():
 def transferData():
     global flag
     global linesTransfer
+
+    DEBUG = True
     linesTransfer = 0
     i = 0
 
@@ -249,39 +251,36 @@ def transferData():
         print("[ERROR]", err)
 
     # LOOP SERIAL
-    try:
-        while True:
+    while True:
+        try:
             byte = receiver.read(22) # wait till 22 bytes in buffer then write to byte
             hexstr = byte.hex(' ', 1).upper() # bytes to hex [str with delimiter space and split every byte and capital hex letters]
-            if hexstr == stopstr: # STOP if string matches stopstr [end of file]
-                print("\nEND OF DATA")
-                break
-            elif len(hexstr) != 65: # STOP if string smaller than 22 bytes [read() timeout]
-                print("\nEND OF STREAM")
+            if hexstr == stopstr: # STOP: if string matches stopstr [end of file]
+                input("\n[INFO] End of data. Press ENTER to continue.")
                 break
             elif len(hexstr) == 65: # SAVE: string has 22 bytes and no stop condition
                 file.write(hexstr + "\n")
                 i = i+1
                 print(i, end="\r")
-            else:
-                print("")
-                print("\n[ERROR] : unknown")
-                input("\nPRESS ENTER TO CONTINUE")
-                flag = True
+            elif len(hexstr) < 65: # STOP: if string smaller than 22 bytes [read() timeout]
+                input("\n[INFO] End of stream. Press ENTER to continue.")
                 break
-        receiver.close()
-        try:
-            file.flush() # force write from buffer to file
-            file.close()
         except Exception as err:
-            print("\n[ERROR]", err)
-            input("PRESS ENTER TO CONTINUE")
+            print("\n[ERROR] : ",err)
+            input("[INFO] Press ENTER to continue.")
             flag = True
-        linesTransfer = i-1
+            break
+
+    try:
+        receiver.close()
+        file.flush() # force write from buffer to file
+        file.close()
     except Exception as err:
-        print("\n[ERROR] : ",err)
+        print("\n[ERROR]", err)
         input("PRESS ENTER TO CONTINUE")
         flag = True
+    linesTransfer = i-1
+
     return flag
 
 ### TRUNC DATA ###
@@ -309,28 +308,29 @@ def testData():
     try:
         file = open(filename, 'r')
         lines = file.readlines()
-
         if len(lines) >= 2:
             hourold = int((lines[1])[:2], 16) # first 2 chars of first line to int
-            for x in lines:
-                hour = int(x[:2], 16)
-                if hour == hourold:
-                    print(i,"/",linesTransfer, end="\r")
-                elif hour == (hourold+1):
-                    print(i,"/",linesTransfer, end="\r")
-                else:
-                    print("")
-                    print("\n[ERROR] : unknown")
-                    input("\nPRESS ENTER TO EXIT")
-                    exit()
-                hourold = hour
-                i = i+1
-            print("")
-            print("\nOK")
-            input("\nPRESS ENTER TO CONTINUE")
+            try:
+                for x in lines:
+                    hour = int(x[:2], 16)
+                    if hour == hourold:
+                        print(i,"/",linesTransfer, end="\r")
+                    elif hour == (hourold+1):
+                        print(i,"/",linesTransfer, end="\r")
+                    elif hour == 0 and hourold == 24:
+                        print(i,"/",linesTransfer, end="\r")
+                    else:
+                        raise Exception
+                    hourold = hour
+                    i = i+1
+                print("\n\nOK")
+                input("\nPRESS ENTER TO CONTINUE")
+            except Exception as err:
+                print("[ERROR] : ",err)
+                input("PRESS ENTER TO CONTINUE")
+                flag = True
         else:
-            print("")
-            print("\nFILE EMPTY")
+            print("\n\nFILE EMPTY")
             input("\nPRESS ENTER TO CONTINUE")
     except Exception as err:
         print("[ERROR] : ",err)

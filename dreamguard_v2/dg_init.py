@@ -75,6 +75,7 @@ def check_version():
 
     with open("version") as f:
         version_local = f.readline().strip('\n')
+    f.close()
 
     if version_web > version_local:
         print("[ERROR] New update available. Please update.")
