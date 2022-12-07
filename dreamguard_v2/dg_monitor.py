@@ -31,9 +31,6 @@ def calc(monitor_unix_time, monitor_reltime, resprate, heartrate, satrate ):
         temp = (datetime.datetime.fromtimestamp(x/1000).strftime('%H:%M:%S.%f')) # extract h, m, s, ms from unix
         monitor_timestamp.append(datetime.datetime.strptime(temp,'%H:%M:%S.%f')) # covert to datetime object (date is now 1970, but does not matter)
 
-    #print(monitor_timestamp[0])
-    #print(type(monitor_timestamp[0]))
-
     # clean time, resp, heart, sat lists
     i = 0
     while i < len(monitor_reltime)-1:
@@ -42,9 +39,12 @@ def calc(monitor_unix_time, monitor_reltime, resprate, heartrate, satrate ):
         if i == 0 or monitor_reltime[i] > monitor_reltime_norm[-1]:
             monitor_reltime_norm.append(monitor_reltime[i])
         
-            # while monitor_reltime has same relative time, append value to list if != nan and then break loop (remove empty values)
+            # while monitor_reltime has same relative time, append value to list if not nan and then break loop (remove empty values)
             j = i
             while True:
+                if j == len(monitor_reltime):
+                    resprate_norm.append(resprate_norm[-1])
+                    break
                 if monitor_reltime[j] == monitor_reltime[i]:
                     if math.isnan(resprate[j]) == False:
                         resprate_norm.append(resprate[j])
@@ -57,6 +57,9 @@ def calc(monitor_unix_time, monitor_reltime, resprate, heartrate, satrate ):
 
             j = i
             while True:
+                if j == len(monitor_reltime):
+                    heartrate_norm.append(heartrate_norm[-1])
+                    break
                 if monitor_reltime[j] == monitor_reltime[i]:
                     if math.isnan(heartrate[j]) == False:
                         heartrate_norm.append(heartrate[j])
@@ -69,6 +72,9 @@ def calc(monitor_unix_time, monitor_reltime, resprate, heartrate, satrate ):
 
             j = i
             while True:
+                if j == len(monitor_reltime):
+                    satrate_norm.append(satrate_norm[-1])
+                    break
                 if monitor_reltime[j] == monitor_reltime[i]:
                     if math.isnan(satrate[j]) == False:
                         satrate_norm.append(satrate[j])
@@ -78,7 +84,6 @@ def calc(monitor_unix_time, monitor_reltime, resprate, heartrate, satrate ):
                     satrate_norm.append(satrate_norm[-1])
                     break
                 j += 1
-
         i += 1
 
     # calc limits
