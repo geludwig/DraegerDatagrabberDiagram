@@ -12,9 +12,8 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 5) Choose the corresponding CSV and TXT files (2 examples are included in the folder "input_files")
 
 ## Files
-CSV : Recorded files from "Draeger Datagrabber" via EKG leads
-
-TXT : Recorded files from prototype sensor installed on infant
+- CSV : Recorded files from "Draeger Datagrabber" via EKG leads
+- TXT : Recorded files from prototype sensor installed on infant
 
 ## Sensor data
 - Sensor file contain hex values which get imported in "dreamguard_import.py" (look there for the definition of each column).
