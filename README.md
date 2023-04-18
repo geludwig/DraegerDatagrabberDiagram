@@ -9,7 +9,7 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 2) Install Python and check "Add to PATH" during installation.
 3) Download script via https://github.com/geludwig/DraegerDreamGuard/releases/latest
 4) Run "_main.py"
-5) Choose the corresponding CSV and TXT files (2 examples are included in the folder "input_files")
+5) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
 
 ## Files
 - CSV : Recorded files from "Draeger Datagrabber" via EKG leads
