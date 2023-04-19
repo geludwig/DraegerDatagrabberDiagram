@@ -8,7 +8,7 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 1) Download Python from https://www.python.org/downloads/
 2) Install Python and check "Add to PATH" during installation.
 3) Download script via https://github.com/geludwig/DraegerDreamGuard/releases/latest
-4) Run "_main.py"
+4) Run "_main.py" (script may install required modules)
 5) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
 
 ## Files
