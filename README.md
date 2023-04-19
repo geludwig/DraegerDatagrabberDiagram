@@ -12,7 +12,7 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 ## How to use
 1) Run "_main.py" (script may install missing modules itself)
 2) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
-3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs.
+3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs (zoom or move tool have to be disabled)
 
 ## Files
 - CSV : Recorded files from "Draeger Datagrabber" via EKG leads
