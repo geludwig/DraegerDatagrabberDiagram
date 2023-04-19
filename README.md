@@ -12,12 +12,12 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 ## How to use
 1) Run "_main.py" (script may install missing modules itself)
 2) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
-3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs (zoom or move tool have to be disabled)
+3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs (zoom and move tool have to be disabled)
 
 ## Files
 - CSV : Recorded files from "Draeger Datagrabber" via EKG leads
 - TXT : Recorded files from prototype sensor installed on infant
 
 ## Sensor data
-- Sensor file contain hex values which get imported in "dreamguard_import.py" (look there for the definition of each column).
+- Sensor file contains hex values which get imported in "dreamguard_import.py" (look there for the definition of each column).
 - Imported hex values are converted in "dreamguard_sensor.py" to their corresponding decimal values.
