@@ -10,7 +10,7 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 3) Download script via https://github.com/geludwig/DraegerDreamGuard/releases/latest
 
 ## How to use
-1) Run "_main.py" (script may install required modules itself)
+1) Run "_main.py" (script may install missing modules itself)
 2) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
 3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs.
 
