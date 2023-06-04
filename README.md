@@ -2,8 +2,6 @@
 
 Dreamguard was a product released by Draeger to monitor the respiration of infants. The product was discontinued on 31.12.2021. This phython scripts was written for the prototype version, which was used for a PhD thesis.
 
-https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retrieved 20.05.2022)
-
 ## How to install
 1) Download Python from https://www.python.org/downloads/
 2) Install Python and check "Add to PATH" during installation.
@@ -12,7 +10,7 @@ https://www.draeger.com/Library/Content/dreamguard-gebrauchsanweisung.pdf (retri
 ## How to use
 1) Run "_main.py" (script may install missing modules itself)
 2) Choose the corresponding CSV and TXT files (2 examples, both including Back and Prone position, are included in the folder "input_files")
-3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs (zoom and move tool have to be disabled)
+3) You can click on "acc x", "acc y", ... in the legend of the lower plot to enable/disable the corresponding graphs (zoom and move tool must be disabled)
 
 ## Files
 - CSV : Recorded files from "Draeger Datagrabber" via EKG leads
