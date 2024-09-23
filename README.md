@@ -1,6 +1,6 @@
 # DraegerDreamguard
 
-Dreamguard was a product released by Draeger to monitor the respiration of infants. The product was discontinued on 31.12.2021. This phython scripts was written for the prototype version, which was used for a PhD thesis.
+Dreamguard was a product released by Draeger to monitor the respiration of infants. The product was discontinued on 31.12.2021. This phython scripts was written for the prototype version, which was used for a PhD thesis. The script compares the data from the Dreamguard sensor with the EKG data, sets the correct timeline and offsets and displays it via an interactive diagram.
 
 ## How to install
 1) Download Python from https://www.python.org/downloads/
